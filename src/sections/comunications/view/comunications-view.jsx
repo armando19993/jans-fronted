@@ -18,9 +18,10 @@ import {
   TableRow,
 } from '@mui/material';
 import Iconify from 'src/components/iconify';
-import { Editor } from '@tinymce/tinymce-react';
 import { instanceWithToken } from 'src/utils/instance';
 import { toast } from 'react-toastify';
+import ReactQuill from 'react-quill';
+import 'react-quill/dist/quill.snow.css';
 
 export default function ComunicationView() {
   const [open, setOpen] = useState(false);
@@ -79,6 +80,17 @@ export default function ComunicationView() {
     getComunications();
   }, []);
 
+  const modules = {
+    toolbar: [
+      [{ 'header': '1' }, { 'header': '2' }, { 'font': [] }],
+      [{ 'size': [] }],
+      ['bold', 'italic', 'underline', 'strike', 'blockquote'],
+      [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+      ['link', 'image', 'video'],
+      ['clean'],
+    ],
+  };
+
   return (
     <Container>
       <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
@@ -133,23 +145,12 @@ export default function ComunicationView() {
             value={title}
             onChange={(e) => setTitle(e.target.value)}
           />
-          <Editor
-            apiKey="zwhehdkpnkyjhng0r8mdxozlbt2ygyib6ooyxyo8xk4nq2tv"
-            initialValue=""
-            init={{
-              height: '100%',
-              menubar: false,
-              plugins: ['link', 'lists', 'table', 'autosave', 'paste'],
-              toolbar:
-                'undo redo | styleselect | bold italic | alignleft aligncenter alignright | bullist numlist outdent indent | link | table',
-              content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }',
-              setup: (editor) => {
-                editor.on('NodeChange', () => {
-                  editor.focus();
-                });
-              },
-            }}
-            onEditorChange={(content) => setDescription(content)}
+          <ReactQuill
+            value={description}
+            onChange={setDescription}
+            modules={modules}
+            placeholder="Escribe el contenido del comunicado..."
+            style={{ height: '400px', marginTop: '20px' }}
           />
         </DialogContent>
         <DialogActions>
@@ -163,7 +164,7 @@ export default function ComunicationView() {
       </Dialog>
 
       {/* Modal para Ver Comunicado */}
-      <Dialog open={viewOpen} onClose={handleViewClose} fullWidth maxWidth="lg">
+      <Dialog open={viewOpen} onClose={handleViewClose} fullWidth maxWidth="lg" disableEnforceFocus>
         <DialogTitle>{selectedComunication?.titulo}</DialogTitle>
         <DialogContent>
           <div dangerouslySetInnerHTML={{ __html: selectedComunication?.description }} />

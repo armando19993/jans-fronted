@@ -34,7 +34,7 @@ export default function DashboardLayout({ children }) {
   };
 
   const handleYoutubeClick = () => {
-    window.open('https://www.jansprogramming.com.co/', '_blank');
+    window.open('https://www.youtube.com/playlist?list=PL9awpmXQqEjlbOkDSg8rxu2cx6-JuSWGO', '_blank');
   };
 
   return (
@@ -67,7 +67,7 @@ export default function DashboardLayout({ children }) {
           <Fab color="success" onClick={handleWhatsAppClick}>
             <Iconify icon="simple-icons:whatsapp" />
           </Fab>
-          <Fab color="error" onClick={handleWhatsAppClick}>
+          <Fab color="error" onClick={handleYoutubeClick}>
             <Iconify icon="simple-icons:youtube" />
           </Fab>
           <Fab color="secondary" onClick={handleWebClick}>
