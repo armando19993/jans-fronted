@@ -100,16 +100,16 @@ export default function LoteModal({ open, onClose }) {
       );
       return;
     }
+    let nuevaCtda = result.data.data.ctda_documents - validationResults.totalCount;
+    await instanceWithToken.patch('company/' + Cookies.get('companyId'), {
+      ctda_documents: nuevaCtda,
+    });
 
     try {
       const result = await instanceWithToken.post('lotes', jsonData);
       toast.success('El proceso de validacion y revision ha iniciado correctamente');
       handleClose();
       await instanceWithToken.get('lotes/procesar/cufes');
-      let nuevaCtda = result.data.data.ctda_documents - validationResults.totalCount;
-      await instanceWithToken.patch('company/' + Cookies.get('companyId'), {
-        ctda_documents: nuevaCtda,
-      });
     } catch (error) {
       console.error('Error sending data:', error);
       toast.error('Error al procesar el lote');
@@ -179,11 +179,7 @@ export default function LoteModal({ open, onClose }) {
               )}
 
               <Stack direction="row" spacing={2} justifyContent="space-between">
-                <Button
-                  variant="outlined"
-                  onClick={resetState}
-                  color="secondary"
-                >
+                <Button variant="outlined" onClick={resetState} color="secondary">
                   Reiniciar
                 </Button>
                 <Button
