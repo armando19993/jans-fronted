@@ -66,12 +66,13 @@ export default function UserTableRow({
   };
 
   const setStatus = (status, id) => {
-    instanceWithToken.patch('user/'+id, {status}).then((result) => {
-      toast.success(`El usuario ${name} se le actualizo el estado correctamente`)
-    })
-    handleClick();
-    handleCloseMenu()
-  }
+    instanceWithToken.patch('user/' + id, { status }).then((result) => {
+      toast.success(`El usuario ${name} se le actualizo el estado correctamente`);
+      handleClick();
+    });
+
+    handleCloseMenu();
+  };
 
   return (
     <>
