@@ -45,6 +45,13 @@ export default function LoginView() {
       .then((result) => {
         let user = result.data;
 
+        if (user.user.status == 'SUSPENDIDO' || user.user.status == 'ELIMINADO') {
+          toast.error(
+            'Tu Usuario se encuentra suspendido, contacta con la administracion de la empresa'
+          );
+          return;
+        }
+
         Cookies.set('sesion', true);
         Cookies.set('user', user.user.username);
         Cookies.set('name', user.user.name);
