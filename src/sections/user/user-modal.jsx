@@ -110,7 +110,7 @@ export default function UserModal({ open, onClose, onSubmit, isEdit, initialData
               <MenuItem value="OPERATOR">OPERADOR</MenuItem>
             </Select>
           </FormControl>
-          {formData.role == 'SADMIN' && (
+          {formData.role != 'SADMIN' && (
             <FormControl fullWidth>
               <InputLabel>Empresa</InputLabel>
               <Select
