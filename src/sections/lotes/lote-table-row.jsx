@@ -56,10 +56,6 @@ export default function LoteTableRow({ lote }) {
           <Iconify icon="eva:eye-fill" sx={{ mr: 2 }} />
           Ver
         </MenuItem>
-        <MenuItem onClick={() => alert('Hoal')} sx={{ color: '#008c00' }}>
-          <Iconify icon="catppuccin:ms-excel" sx={{ mr: 2 }} />
-          Exportar
-        </MenuItem>
       </Popover>
     </>
   );

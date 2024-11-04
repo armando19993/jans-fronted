@@ -5,12 +5,8 @@ import TableBody from '@mui/material/TableBody';
 import TableContainer from '@mui/material/TableContainer';
 import TablePagination from '@mui/material/TablePagination';
 import LoteModal from '../lote-modal';
-import LotesTableToolbar from '../lotes-table-toolbar';
 import { instanceWithToken } from 'src/utils/instance';
 import { toast } from 'react-toastify';
-import TableEmptyRows from 'src/sections/user/table-empty-rows';
-import TableNoData from 'src/sections/user/table-no-data';
-import { emptyRows, applyFilter, getComparator } from 'src/sections/company/utils';
 import Iconify from 'src/components/iconify';
 import LoteTableRow from '../lote-table-row';
 import CompanyTableHead from 'src/sections/company/company-table-head';
@@ -20,12 +16,9 @@ import CompanyTableHead from 'src/sections/company/company-table-head';
 export default function LotePage() {
   const [openModal, setOpenModal] = useState(false);
   const [selected, setSelected] = useState([]);
-  const [filterName, setFilterName] = useState('');
   const [lotes, setLotes] = useState([]);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
-  const dataFiltered = applyFilter({ inputData: lotes, filterName });
-  const notFound = !dataFiltered.length && !!filterName;
   const [order, setOrder] = useState('asc');
   const [orderBy, setOrderBy] = useState('name');
 
@@ -47,10 +40,6 @@ export default function LotePage() {
     setOpenModal(false);
   };
 
-  const handleFilterByName = (event) => {
-    setFilterName(event.target.value);
-  };
-
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
   };
@@ -68,7 +57,7 @@ export default function LotePage() {
 
   const handleSelectAllClick = (event) => {
     if (event.target.checked) {
-      const newSelecteds = companies.map((n) => n.name);
+      const newSelecteds = lotes.map((n) => n.name);
       setSelected(newSelecteds);
       return;
     }
@@ -104,12 +93,6 @@ export default function LotePage() {
       </Stack>
 
       <Card>
-        <LotesTableToolbar
-          numSelected={selected.length}
-          filterName={filterName}
-          onFilterName={handleFilterByName}
-        />
-
         <TableContainer>
           <Table>
             <CompanyTableHead
@@ -123,20 +106,16 @@ export default function LotePage() {
                 { id: 'id', label: 'ID' },
                 { id: 'name', label: 'Fecha' },
                 { id: 'ctda_users', label: 'Empresa' },
-                { id: 'ctda_documents', label: 'Usario' },
+                { id: 'ctda_documents', label: 'Usuario' },
                 { id: 'ctda_regss', label: 'Documentos' },
               ]}
             />
             <TableBody>
-              {dataFiltered
+              {lotes
                 .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                 .map((lote) => (
                   <LoteTableRow key={lote.id} lote={lote} />
                 ))}
-
-              <TableEmptyRows height={77} emptyRows={emptyRows(page, rowsPerPage, lotes.length)} />
-
-              {notFound && <TableNoData query={filterName} />}
             </TableBody>
           </Table>
         </TableContainer>
