@@ -19,7 +19,9 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
+  Alert,
 } from '@mui/material';
+import axios from 'axios';
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Iconify from 'src/components/iconify';
@@ -43,8 +45,13 @@ export default function DocumentsPage() {
     iva: null,
     total: null,
     events: [],
+    factura_pdf: null,
   }); // Documento seleccionado
   const [openDialog, setOpenDialog] = useState(false); // Estado del modal
+  const [openPdfDialog, setOpenPdfDialog] = useState(false);
+  const [pdfLoading, setPdfLoading] = useState(false);
+  const [pdfError, setPdfError] = useState(null);
+  const [pdfData, setPdfData] = useState(null);
 
   const getDocuments = () => {
     setLoading(true);
@@ -96,6 +103,38 @@ export default function DocumentsPage() {
     setOpenMenu(null);
   };
 
+  const handleOpenPdfDialog = async () => {
+    setPdfLoading(true);
+    setPdfError(null);
+
+    try {
+      const response = await axios.get(
+        `https://api.jansprogramming.com.co/pdfs/${selectedDocument.cufe}.pdf`,
+        {
+          responseType: 'blob',
+        }
+      );
+
+      const pdfBlob = new Blob([response.data], { type: 'application/pdf' });
+      const pdfUrl = URL.createObjectURL(pdfBlob);
+      setPdfData(pdfUrl);
+      setOpenPdfDialog(true);
+    } catch (error) {
+      setPdfError('Error al cargar el PDF. Por favor, intente nuevamente.');
+      console.error('Error loading PDF:', error);
+    } finally {
+      setPdfLoading(false);
+    }
+  };
+
+  const handleClosePdfDialog = () => {
+    setOpenPdfDialog(false);
+    // Limpiar el URL del objeto cuando se cierra el diálogo
+    if (pdfData) {
+      URL.revokeObjectURL(pdfData);
+      setPdfData(null);
+    }
+  };
   const handleExport = () => {
     instanceWithToken
       .get('lotes/export/documents/' + loteId, {
@@ -250,6 +289,9 @@ export default function DocumentsPage() {
                     <strong>Fecha:</strong>{' '}
                     {selectedDocument.date_factura ? selectedDocument.date_factura : null}
                   </Typography>
+                  <Typography>
+                    <strong>CUFE:</strong> {selectedDocument.cufe ? selectedDocument.cufe : null}
+                  </Typography>
                 </Stack>
               </Grid>
               <Grid item xs={12} sm={6}>
@@ -338,10 +380,79 @@ export default function DocumentsPage() {
                 </Grid>
               )}
             </Grid>
+            <Stack direction="row" spacing={2}>
+              <Button color="primary" onClick={handleOpenPdfDialog}>
+                Ver PDF
+              </Button>
+              <Button
+                color="primary"
+                onClick={() =>
+                  window.open(
+                    `https://catalogo-vpfe.dian.gov.co/document/searchqr?documentkey=${selectedDocument.cufe}`,
+                    '_blank'
+                  )
+                }
+                startIcon={<Iconify icon="mdi:open-in-new" />}
+              >
+                Ver DIAN
+              </Button>
+            </Stack>
           </Stack>
         </DialogContent>
         <DialogActions>
           <Button onClick={handleCloseDialog} color="primary">
+            Cerrar
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog
+        open={openPdfDialog}
+        onClose={handleClosePdfDialog}
+        maxWidth="lg"
+        fullWidth
+        PaperProps={{
+          sx: {
+            width: { xs: '95%', sm: '80%' },
+            height: '90vh',
+          },
+        }}
+      >
+        <DialogTitle>
+          Vista Previa de la Factura PDF
+          <Button
+            onClick={() => window.open(pdfData, '_blank')}
+            startIcon={<Iconify icon="mdi:open-in-new" />}
+            sx={{ float: 'right' }}
+          >
+            Abrir en nueva pestaña
+          </Button>
+        </DialogTitle>
+        <DialogContent sx={{ p: 0, height: 'calc(90vh - 130px)' }}>
+          {pdfLoading && (
+            <Stack alignItems="center" justifyContent="center" sx={{ height: '100%' }}>
+              <CircularProgress />
+            </Stack>
+          )}
+
+          {pdfError && (
+            <Alert severity="error" sx={{ m: 2 }}>
+              {pdfError}
+            </Alert>
+          )}
+
+          {!pdfLoading && !pdfError && pdfData && (
+            <iframe
+              src={pdfData}
+              title="Factura PDF"
+              width="100%"
+              height="100%"
+              style={{ border: 'none' }}
+            />
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleClosePdfDialog} color="primary">
             Cerrar
           </Button>
         </DialogActions>
