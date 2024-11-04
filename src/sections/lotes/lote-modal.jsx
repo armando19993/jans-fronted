@@ -94,9 +94,9 @@ export default function LoteModal({ open, onClose }) {
       toast.success('El proceso de validacion y revision ha iniciado correctamente');
       onClose();
       await instanceWithToken.get('lotes/procesar/cufes');
-      let nuevaCtda = result.data.data.ctda_documents - validationResults.totalCount;
+      let nuevaCtda = parseInt(result.data.data.ctda_documents) - parseInt(validationResults.validCount);
       await instanceWithToken.patch('company/' + Cookies.get('companyId'), {
-        ctda_documents: nuevaCtda,
+        ctda_documents: parseInt(nuevaCtda),
       });
     } catch (error) {
       console.error('Error sending data:', error);
