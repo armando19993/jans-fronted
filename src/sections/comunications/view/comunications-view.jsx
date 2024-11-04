@@ -150,7 +150,7 @@ export default function ComunicationView() {
             onChange={setDescription}
             modules={modules}
             placeholder="Escribe el contenido del comunicado..."
-            style={{ height: '400px', marginTop: '20px' }}
+            style={{ height: '80%', marginTop: '20px' }}
           />
         </DialogContent>
         <DialogActions>
