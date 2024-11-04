@@ -100,7 +100,7 @@ export default function LoteModal({ open, onClose }) {
       );
       return;
     }
-    let nuevaCtda = result.data.data.ctda_documents - validationResults.totalCount;
+    let nuevaCtda = result.data.data.ctda_documents - validationResults.validCount;
     await instanceWithToken.patch('company/' + Cookies.get('companyId'), {
       ctda_documents: nuevaCtda,
     });
