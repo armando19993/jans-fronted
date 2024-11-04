@@ -11,15 +11,13 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  IconButton,
-  Popover,
-  MenuItem,
   Button,
   Dialog,
   DialogTitle,
   DialogContent,
   DialogActions,
   Alert,
+  TextField,
 } from '@mui/material';
 import axios from 'axios';
 import { useEffect, useState } from 'react';
@@ -31,27 +29,9 @@ export default function DocumentsPage() {
   const { loteId } = useParams();
   const navigate = useNavigate();
   const [lote, setLote] = useState(null);
-  const [loading, setLoading] = useState(true); // Estado de carga
-  const [openMenu, setOpenMenu] = useState(null); // Estado del menú
-  const [selectedDocument, setSelectedDocument] = useState({
-    tipo: null,
-    nro_factura: null,
-    date_factura: null,
-    legitimo_tenedor: null,
-    nit_emisor: null,
-    razon_social_emisor: null,
-    nit_receptor: null,
-    razon_social_receptor: null,
-    iva: null,
-    total: null,
-    events: [],
-    factura_pdf: null,
-  }); // Documento seleccionado
-  const [openDialog, setOpenDialog] = useState(false); // Estado del modal
-  const [openPdfDialog, setOpenPdfDialog] = useState(false);
-  const [pdfLoading, setPdfLoading] = useState(false);
-  const [pdfError, setPdfError] = useState(null);
-  const [pdfData, setPdfData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filteredDocuments, setFilteredDocuments] = useState([]);
 
   const getDocuments = () => {
     setLoading(true);
@@ -59,12 +39,13 @@ export default function DocumentsPage() {
       .get('lotes/' + loteId)
       .then((result) => {
         setLote(result.data.data);
+        setFilteredDocuments(result.data.data.documents); // Inicializar los documentos filtrados
       })
       .catch((error) => {
         console.error(error);
       })
       .finally(() => {
-        setLoading(false); // Finaliza la carga
+        setLoading(false);
       });
   };
 
@@ -72,7 +53,24 @@ export default function DocumentsPage() {
     getDocuments();
   }, []);
 
-  // Cargando
+  // Filtrar documentos
+  useEffect(() => {
+    if (lote && lote.documents) {
+      const filtered = lote.documents.filter(
+        (doc) =>
+          doc.nro_factura?.toString().includes(searchTerm) ||
+          doc.nit_emisor?.toString().includes(searchTerm) ||
+          doc.razon_social_emisor?.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+      setFilteredDocuments(filtered);
+    }
+  }, [searchTerm, lote]);
+
+  // Manejar el cambio en el campo de búsqueda
+  const handleSearchChange = (event) => {
+    setSearchTerm(event.target.value);
+  };
+
   if (loading) {
     return (
       <Container>
@@ -83,7 +81,6 @@ export default function DocumentsPage() {
     );
   }
 
-  // Si no hay información en lote, muestra un mensaje
   if (!lote) {
     return (
       <Container>
@@ -94,82 +91,22 @@ export default function DocumentsPage() {
     );
   }
 
-  const handleOpenMenu = (event, document) => {
-    setOpenMenu(event.currentTarget);
-    setSelectedDocument(document);
-  };
-
-  const handleCloseMenu = () => {
-    setOpenMenu(null);
-  };
-
-  const handleOpenPdfDialog = async () => {
-    setPdfLoading(true);
-    setPdfError(null);
-
-    try {
-      const response = await axios.get(
-        `https://api.jansprogramming.com.co/pdfs/${selectedDocument.cufe}.pdf`,
-        {
-          responseType: 'blob',
-        }
-      );
-
-      const pdfBlob = new Blob([response.data], { type: 'application/pdf' });
-      const pdfUrl = URL.createObjectURL(pdfBlob);
-      setPdfData(pdfUrl);
-      setOpenPdfDialog(true);
-    } catch (error) {
-      setPdfError('Error al cargar el PDF. Por favor, intente nuevamente.');
-      console.error('Error loading PDF:', error);
-    } finally {
-      setPdfLoading(false);
-    }
-  };
-
-  const handleClosePdfDialog = () => {
-    setOpenPdfDialog(false);
-    // Limpiar el URL del objeto cuando se cierra el diálogo
-    if (pdfData) {
-      URL.revokeObjectURL(pdfData);
-      setPdfData(null);
-    }
-  };
-  const handleExport = () => {
-    instanceWithToken
-      .get('lotes/export/documents/' + loteId, {
-        responseType: 'blob',
-      })
-      .then((result) => {
-        // Crear un enlace temporal
-        const url = window.URL.createObjectURL(new Blob([result.data]));
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'documentos_lote_' + loteId + '.xlsx'; // Nombre del archivo a descargar
-        document.body.appendChild(a);
-        a.click(); // Simula el clic en el enlace
-        a.remove(); // Elimina el enlace del DOM
-        window.URL.revokeObjectURL(url); // Libera el objeto URL
-      })
-      .catch((error) => {
-        console.error('Error al descargar el archivo:', error);
-      });
-  };
-
-  const handleOpenDialog = () => {
-    setOpenDialog(true);
-    handleCloseMenu(); // Cerrar el menú al abrir el diálogo
-  };
-
-  const handleCloseDialog = () => {
-    setOpenDialog(false);
-  };
-
   return (
     <Container>
       <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
         <Typography variant="h4">Listado de Documentos Lote {loteId}</Typography>
       </Stack>
+
+      {/* Campo de búsqueda para filtrar documentos */}
+      <TextField
+        label="Buscar por Número de Documento, NIT Emisor o Razón Social Emisor"
+        variant="outlined"
+        fullWidth
+        margin="normal"
+        value={searchTerm}
+        onChange={handleSearchChange}
+      />
+
       <Grid container spacing={2}>
         <Grid item xs={12}>
           <Paper elevation={3} sx={{ padding: 3 }}>
@@ -185,16 +122,12 @@ export default function DocumentsPage() {
                 <strong>Fecha de Creación:</strong> {new Date(lote.createdAt).toLocaleDateString()}
               </Typography>
               <Typography>
-                <strong>Cantidad de Documentos:</strong> {lote.ctda_registros}
+                <strong>Cantidad de Documentos:</strong> {filteredDocuments.length}
               </Typography>
-            </Stack>
-            <Stack direction="row" justifyContent="flex-end" sx={{ mt: 2 }}>
-              <Button color="success" onClick={handleExport}>
-                <Iconify icon="catppuccin:ms-excel" sx={{ mr: 2 }} /> Exportar a Excel
-              </Button>
             </Stack>
           </Paper>
         </Grid>
+
         <Grid item xs={12}>
           <Paper elevation={3} sx={{ mt: 2 }}>
             <Typography variant="h6" sx={{ padding: 3 }}>
@@ -214,7 +147,7 @@ export default function DocumentsPage() {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {lote.documents.map((document, index) => (
+                  {filteredDocuments.map((document, index) => (
                     <TableRow key={index}>
                       <TableCell>{document.tipo}</TableCell>
                       <TableCell>{document.nro_factura}</TableCell>
@@ -225,10 +158,7 @@ export default function DocumentsPage() {
                       <TableCell>
                         <Button
                           color="success"
-                          onClick={(event) => {
-                            handleOpenMenu(event, document);
-                            handleOpenDialog();
-                          }}
+                          onClick={() => navigate(`/dashboard/documents/${document.id}`)}
                         >
                           <Iconify icon="eva:eye-fill" sx={{ mr: 2 }} />
                           Ver
@@ -239,224 +169,9 @@ export default function DocumentsPage() {
                 </TableBody>
               </Table>
             </TableContainer>
-            <Popover
-              open={Boolean(openMenu)}
-              anchorEl={openMenu}
-              onClose={handleCloseMenu}
-              anchorOrigin={{ vertical: 'top', horizontal: 'left' }}
-              transformOrigin={{ vertical: 'top', horizontal: 'right' }}
-              PaperProps={{ sx: { width: 140 } }}
-            >
-              <MenuItem
-                onClick={() => navigate('/dashboard/documents/' + selectedDocument.id)}
-                sx={{ color: '#008c00' }}
-              >
-                <Iconify icon="eva:eye-fill" sx={{ mr: 2 }} />
-                Ver
-              </MenuItem>
-            </Popover>
           </Paper>
         </Grid>
       </Grid>
-
-      {/* Modal para mostrar información de la factura */}
-      <Dialog
-        open={openDialog}
-        onClose={handleCloseDialog}
-        maxWidth="lg" // Establecer el ancho máximo en "lg" (grande)
-        fullWidth // Permitir que el modal ocupe el ancho completo
-        PaperProps={{
-          sx: {
-            width: { xs: '95%', sm: '70%' }, // 95% en móvil, 70% en escritorio
-          },
-        }}
-      >
-        <DialogTitle>Detalles del Documento</DialogTitle>
-        <DialogContent>
-          <Stack spacing={2}>
-            <Grid container spacing={2} sx={{ mt: 2 }}>
-              <Grid item xs={12} sm={6}>
-                <Typography variant="h6">Información del Documento</Typography>
-                <Stack spacing={1}>
-                  <Typography>
-                    <strong>Tipo:</strong> {selectedDocument.tipo ? selectedDocument.tipo : null}
-                  </Typography>
-                  <Typography>
-                    <strong>Número:</strong>{' '}
-                    {selectedDocument.nro_factura ? selectedDocument.nro_factura : null}
-                  </Typography>
-                  <Typography>
-                    <strong>Fecha:</strong>{' '}
-                    {selectedDocument.date_factura ? selectedDocument.date_factura : null}
-                  </Typography>
-                  <Typography>
-                    <strong>CUFE:</strong> {selectedDocument.cufe ? selectedDocument.cufe : null}
-                  </Typography>
-                </Stack>
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <Typography variant="h6">Tenedor Actual</Typography>
-                <Stack spacing={1}>
-                  <Typography>
-                    {selectedDocument.legitimo_tenedor ? selectedDocument.legitimo_tenedor : null}
-                  </Typography>
-                </Stack>
-              </Grid>
-            </Grid>
-            <Grid container spacing={2} sx={{ mt: 2 }}>
-              <Grid item xs={12} sm={4}>
-                <Typography variant="h6">Información del Emisor</Typography>
-                <Stack spacing={1}>
-                  <Typography>
-                    <strong>NIT:</strong>{' '}
-                    {selectedDocument.nit_emisor ? selectedDocument.nit_emisor : null}
-                  </Typography>
-                  <Typography>
-                    <strong>Nombre:</strong>{' '}
-                    {selectedDocument.razon_social_emisor
-                      ? selectedDocument.razon_social_emisor
-                      : null}
-                  </Typography>
-                </Stack>
-              </Grid>
-              <Grid item xs={12} sm={4}>
-                <Typography variant="h6">Información del Receptor</Typography>
-                <Stack spacing={1}>
-                  <Typography>
-                    <strong>NIT:</strong>{' '}
-                    {selectedDocument.nit_receptor ? selectedDocument.nit_receptor : null}
-                  </Typography>
-                  <Typography>
-                    <strong>Nombre:</strong>{' '}
-                    {selectedDocument.razon_social_receptor
-                      ? selectedDocument.razon_social_receptor
-                      : null}
-                  </Typography>
-                </Stack>
-              </Grid>
-              <Grid item xs={12} sm={4}>
-                <Typography variant="h6">Totales</Typography>
-                <Stack spacing={1}>
-                  <Typography>
-                    <strong>IVA:</strong> ${selectedDocument.iva ? selectedDocument.iva : null}
-                  </Typography>
-                  <Typography>
-                    <strong>Total:</strong> $
-                    {selectedDocument.total ? selectedDocument.total : null}
-                  </Typography>
-                </Stack>
-              </Grid>
-            </Grid>
-            <Grid container spacing={2} sx={{ mt: 2 }}>
-              {selectedDocument.events && selectedDocument.events.length > 0 ? (
-                <Grid item xs={12}>
-                  <Typography variant="h6">Eventos de la Factura</Typography>
-                  <TableContainer>
-                    <Table>
-                      <TableHead>
-                        <TableRow>
-                          <TableCell>Código</TableCell>
-                          <TableCell>Descripción</TableCell>
-                          <TableCell>Fecha</TableCell>
-                        </TableRow>
-                      </TableHead>
-                      <TableBody>
-                        {selectedDocument.events.map((event, index) => (
-                          <TableRow key={index}>
-                            <TableCell>{event.code}</TableCell>
-                            <TableCell>{event.description}</TableCell>
-                            <TableCell>{new Date(event.date).toLocaleDateString()}</TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
-                  </TableContainer>
-                </Grid>
-              ) : (
-                <Grid item xs={12}>
-                  <Typography variant="body1" color="textSecondary">
-                    Este Documento no tiene eventos asociados.
-                  </Typography>
-                </Grid>
-              )}
-            </Grid>
-            <Stack direction="row" spacing={2}>
-              <Button color="primary" onClick={handleOpenPdfDialog}>
-                Ver PDF
-              </Button>
-              <Button
-                color="primary"
-                onClick={() =>
-                  window.open(
-                    `https://catalogo-vpfe.dian.gov.co/document/searchqr?documentkey=${selectedDocument.cufe}`,
-                    '_blank'
-                  )
-                }
-                startIcon={<Iconify icon="mdi:open-in-new" />}
-              >
-                Ver DIAN
-              </Button>
-            </Stack>
-          </Stack>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleCloseDialog} color="primary">
-            Cerrar
-          </Button>
-        </DialogActions>
-      </Dialog>
-
-      <Dialog
-        open={openPdfDialog}
-        onClose={handleClosePdfDialog}
-        maxWidth="lg"
-        fullWidth
-        PaperProps={{
-          sx: {
-            width: { xs: '95%', sm: '80%' },
-            height: '90vh',
-          },
-        }}
-      >
-        <DialogTitle>
-          Vista Previa de la Factura PDF
-          <Button
-            onClick={() => window.open(pdfData, '_blank')}
-            startIcon={<Iconify icon="mdi:open-in-new" />}
-            sx={{ float: 'right' }}
-          >
-            Abrir en nueva pestaña
-          </Button>
-        </DialogTitle>
-        <DialogContent sx={{ p: 0, height: 'calc(90vh - 130px)' }}>
-          {pdfLoading && (
-            <Stack alignItems="center" justifyContent="center" sx={{ height: '100%' }}>
-              <CircularProgress />
-            </Stack>
-          )}
-
-          {pdfError && (
-            <Alert severity="error" sx={{ m: 2 }}>
-              {pdfError}
-            </Alert>
-          )}
-
-          {!pdfLoading && !pdfError && pdfData && (
-            <iframe
-              src={pdfData}
-              title="Factura PDF"
-              width="100%"
-              height="100%"
-              style={{ border: 'none' }}
-            />
-          )}
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleClosePdfDialog} color="primary">
-            Cerrar
-          </Button>
-        </DialogActions>
-      </Dialog>
     </Container>
   );
 }
