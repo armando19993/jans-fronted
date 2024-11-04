@@ -38,9 +38,15 @@ export default function LoteTableRow({ lote }) {
         <TableCell>{lote.ctda_registros}</TableCell>
 
         <TableCell align="right">
-          <IconButton onClick={() => navigate('/dashboard/documents/' + lote.id)}>
-            <Iconify icon="eva:more-vertical-fill" />
-          </IconButton>
+          <Button
+            color="success"
+            onClick={(event) => {
+              () => navigate('/dashboard/documents/' + lote.id);
+            }}
+          >
+            <Iconify icon="eva:eye-fill" sx={{ mr: 2 }} />
+            Ver
+          </Button>
         </TableCell>
       </TableRow>
     </>
