@@ -38,25 +38,11 @@ export default function LoteTableRow({ lote }) {
         <TableCell>{lote.ctda_registros}</TableCell>
 
         <TableCell align="right">
-          <IconButton onClick={handleOpenMenu}>
+          <IconButton onClick={() => navigate('/dashboard/documents/' + lote.id)}>
             <Iconify icon="eva:more-vertical-fill" />
           </IconButton>
         </TableCell>
       </TableRow>
-
-      <Popover
-        open={Boolean(openMenu)}
-        anchorEl={openMenu}
-        onClose={handleCloseMenu}
-        anchorOrigin={{ vertical: 'top', horizontal: 'left' }}
-        transformOrigin={{ vertical: 'top', horizontal: 'right' }}
-        PaperProps={{ sx: { width: 140 } }}
-      >
-        <MenuItem onClick={() => navigate('/dashboard/documents/' + lote.id)}>
-          <Iconify icon="eva:eye-fill" sx={{ mr: 2 }} />
-          Ver
-        </MenuItem>
-      </Popover>
     </>
   );
 }
