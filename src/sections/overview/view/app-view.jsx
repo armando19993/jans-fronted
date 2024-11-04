@@ -198,11 +198,47 @@ export default function AppView() {
           />
         </Grid>
 
+        {Cookies.get('role') == 'ADMIN' && (
+          <Grid xs={12} sm={6} md={3}>
+            <AppWidgetSummary
+              title="Documentos Disponibles"
+              total={estadisticas.disponibles}
+              color="warning"
+              icon={
+                <Box
+                  sx={{
+                    width: 80,
+                    height: 80,
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                  }}
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="100%"
+                    height="100%"
+                    viewBox="0 0 24 24"
+                  >
+                    <defs>
+                      <linearGradient id="orangeGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" style={{ stopColor: '#FF6F20', stopOpacity: 1 }} />
+                        <stop offset="100%" style={{ stopColor: '#FFA726', stopOpacity: 1 }} />
+                      </linearGradient>
+                    </defs>
+                    <path
+                      fill="url(#orangeGradient)"
+                      d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8zm1.8 18H14l-2-3.4l-2 3.4H8.2l2.9-4.5L8.2 11H10l2 3.4l2-3.4h1.8l-2.9 4.5zM13 9V3.5L18.5 9z"
+                    />
+                  </svg>
+                </Box>
+              }
+            />
+          </Grid>
+        )}
+
         <Grid xs={12} md={12} lg={12}>
-          <AppNewsUpdate
-            title="Comunicados"
-            list={comunicados}
-          />
+          <AppNewsUpdate title="Comunicados" list={comunicados} />
         </Grid>
       </Grid>
     </Container>
