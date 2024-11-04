@@ -3,12 +3,12 @@ import Cookies from 'js-cookie';
 
 // Crear instancia básica sin token
 const instance = axios.create({
-    baseURL: import.meta.env.VITE_URL_API,
+    baseURL: 'https://api.jansprogramming.com.co/api/',
 });
 
 // Crear instancia con token
 const instanceWithToken = axios.create({
-    baseURL: import.meta.env.VITE_URL_API,
+    baseURL: 'https://api.jansprogramming.com.co/api/',
 });
 
 // Añadir el token a los headers de cada solicitud
