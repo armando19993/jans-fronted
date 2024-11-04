@@ -23,7 +23,7 @@ const Logo = forwardRef(({ disabledLink = false, sx, ...other }, ref) => {
   }
 
   return (
-    <Link component={RouterLink} href="/" sx={{ display: 'contents' }}>
+    <Link href="https://www.jansprogramming.com.co/" target="_blank" sx={{ display: 'contents' }}>
       {logo}
     </Link>
   );

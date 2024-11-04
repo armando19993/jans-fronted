@@ -165,6 +165,8 @@ export default function DocumentsPage() {
               <Table>
                 <TableHead>
                   <TableRow>
+                    <TableCell>Cufe</TableCell>
+                    <TableCell>Tipo Documento</TableCell>
                     <TableCell>Número Documento</TableCell>
                     <TableCell>Fecha de Documento</TableCell>
                     <TableCell>Emisor</TableCell>
@@ -176,6 +178,8 @@ export default function DocumentsPage() {
                 <TableBody>
                   {lote.documents.map((document, index) => (
                     <TableRow key={index}>
+                      <TableCell>{document.cufe}</TableCell>
+                      <TableCell>{document.tipo}</TableCell>
                       <TableCell>{document.nro_factura}</TableCell>
                       <TableCell>{new Date(document.date_factura).toLocaleDateString()}</TableCell>
                       <TableCell>{`${document.nit_emisor} - ${document.razon_social_emisor}`}</TableCell>
