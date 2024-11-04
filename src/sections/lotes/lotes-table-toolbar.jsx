@@ -31,6 +31,7 @@ export default function LotesTableToolbar({ numSelected, filterName, onFilterNam
         </Typography>
       ) : (
         <OutlinedInput
+          autoComplete={false}
           value={filterName}
           onChange={onFilterName}
           placeholder="Buscar Usuarios"

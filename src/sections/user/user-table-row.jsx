@@ -65,6 +65,14 @@ export default function UserTableRow({
     handleModalClose();
   };
 
+  const setStatus = (status, id) => {
+    instanceWithToken.patch('user/'+id, {status}).then((result) => {
+      toast.success(`El usuario ${name} se le actualizo el estado correctamente`)
+    })
+    handleClick();
+    handleCloseMenu()
+  }
+
   return (
     <>
       <TableRow hover tabIndex={-1} role="checkbox" selected={selected}>
@@ -100,9 +108,15 @@ export default function UserTableRow({
           Editar
         </MenuItem>
         {status === 'ACTIVO' && (
-          <MenuItem onClick={handleCloseMenu} sx={{ color: 'error.main' }}>
+          <MenuItem onClick={() => setStatus('SUSPENDIDO', id)} sx={{ color: 'error.main' }}>
             <Iconify icon="eva:trash-2-outline" sx={{ mr: 2 }} />
             Suspender
+          </MenuItem>
+        )}
+        {status === 'SUSPENDIDO' && (
+          <MenuItem onClick={() => setStatus('ACTIVO', id)} sx={{ color: 'success.main' }}>
+            <Iconify icon="mdi:account-check" sx={{ mr: 2 }} />
+            Activar
           </MenuItem>
         )}
       </Popover>
