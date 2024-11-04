@@ -18,6 +18,19 @@ export default function LoteModal({ open, onClose }) {
   const [isProcessing, setIsProcessing] = useState(false);
   const [validationResults, setValidationResults] = useState(null);
 
+  const resetState = () => {
+    setFile(null);
+    setResultado(null);
+    setJsonData(null);
+    setIsProcessing(false);
+    setValidationResults(null);
+  };
+
+  const handleClose = () => {
+    resetState();
+    onClose();
+  };
+
   const handleFileChange = (event) => {
     const selectedFile = event.target.files[0];
     if (selectedFile) {
@@ -37,7 +50,7 @@ export default function LoteModal({ open, onClose }) {
       } else {
         invalidCount++;
         invalidRecords.push({
-          row: index + 2, // +2 porque Excel empieza en 1 y tenemos encabezado
+          row: index + 2,
           type: documentType,
         });
       }
@@ -70,7 +83,6 @@ export default function LoteModal({ open, onClose }) {
     });
 
     setValidationResults(validation);
-    // Filtrar solo los documentos válidos para el envío
     setJsonData(
       jsonData.filter((record) => VALID_DOCUMENT_TYPES.includes(record['Tipo de documento']))
     );
@@ -92,11 +104,11 @@ export default function LoteModal({ open, onClose }) {
     try {
       const result = await instanceWithToken.post('lotes', jsonData);
       toast.success('El proceso de validacion y revision ha iniciado correctamente');
-      onClose();
+      handleClose();
       await instanceWithToken.get('lotes/procesar/cufes');
-      let nuevaCtda = parseInt(result.data.data.ctda_documents) - parseInt(validationResults.validCount);
+      let nuevaCtda = result.data.data.ctda_documents - validationResults.totalCount;
       await instanceWithToken.patch('company/' + Cookies.get('companyId'), {
-        ctda_documents: parseInt(nuevaCtda),
+        ctda_documents: nuevaCtda,
       });
     } catch (error) {
       console.error('Error sending data:', error);
@@ -105,7 +117,7 @@ export default function LoteModal({ open, onClose }) {
   };
 
   return (
-    <Modal open={open} onClose={onClose}>
+    <Modal open={open} onClose={handleClose}>
       <Box
         sx={{
           p: 3,
@@ -166,13 +178,22 @@ export default function LoteModal({ open, onClose }) {
                 </Box>
               )}
 
-              <Button
-                variant="contained"
-                onClick={iniciarProceso}
-                disabled={validationResults?.validCount === 0}
-              >
-                Enviar Datos Válidos ({validationResults?.validCount} documentos)
-              </Button>
+              <Stack direction="row" spacing={2} justifyContent="space-between">
+                <Button
+                  variant="outlined"
+                  onClick={resetState}
+                  color="secondary"
+                >
+                  Reiniciar
+                </Button>
+                <Button
+                  variant="contained"
+                  onClick={iniciarProceso}
+                  disabled={validationResults?.validCount === 0}
+                >
+                  Enviar Datos Válidos ({validationResults?.validCount} documentos)
+                </Button>
+              </Stack>
             </>
           )}
         </Stack>
