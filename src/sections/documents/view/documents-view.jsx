@@ -110,12 +110,46 @@ export default function DocumentsPage() {
     setOpenDialog(false);
   };
 
-  const handleOpenPdfDialog = () => {
-    setOpenPdfDialog(true);
+  const handleOpenPdfDialog = async () => {
+    setPdfLoading(true);
+    setPdfError(null);
+
+    try {
+      const response = await axios.get(
+        `https://api.jansprogramming.com.co/pdfs/${selectedDocument.cufe}.pdf`,
+        {
+          responseType: 'blob',
+        }
+      );
+
+      const pdfBlob = new Blob([response.data], { type: 'application/pdf' });
+      const pdfUrl = URL.createObjectURL(pdfBlob);
+      setPdfData(pdfUrl);
+      setOpenPdfDialog(true);
+    } catch (error) {
+      setPdfError('Error al cargar el PDF. Por favor, intente nuevamente.');
+      console.error('Error loading PDF:', error);
+    } finally {
+      setPdfLoading(false);
+    }
   };
 
   const handleClosePdfDialog = () => {
     setOpenPdfDialog(false);
+  };
+
+  const handleOpenMenu = (event, document) => {
+    setOpenMenu(event.currentTarget);
+    setSelectedDocument(document);
+  };
+
+  const handleCloseMenu = () => {
+    setOpenMenu(null);
+  };
+
+  const handleOpenDialog = () => {
+    setOpenDialog(true);
+    handleCloseMenu();
   };
 
   if (loading) {
