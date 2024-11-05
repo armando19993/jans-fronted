@@ -10,6 +10,7 @@ import { toast } from 'react-toastify';
 import Iconify from 'src/components/iconify';
 import LoteTableRow from '../lote-table-row';
 import CompanyTableHead from 'src/sections/company/company-table-head';
+import { Helmet } from 'react-helmet-async';
 
 // ----------------------------------------------------------------------
 
@@ -80,6 +81,10 @@ export default function LotePage() {
 
   return (
     <Container>
+      <Helmet>
+        <title> Lotes </title>
+      </Helmet>
+
       <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
         <Typography variant="h4">Lotes</Typography>
         <Button
