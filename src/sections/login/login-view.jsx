@@ -56,6 +56,7 @@ export default function LoginView() {
           toast.error(
             'No puedes acceder tu empresa se encuentra inactiva, conversa con administracion!'
           );
+          return
         }
 
         Cookies.set('sesion', true);
