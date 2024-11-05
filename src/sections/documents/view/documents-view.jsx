@@ -24,6 +24,7 @@ import {
 } from '@mui/material';
 import axios from 'axios';
 import { useEffect, useState } from 'react';
+import { Helmet } from 'react-helmet-async';
 import { useParams, useNavigate } from 'react-router-dom';
 import Iconify from 'src/components/iconify';
 import { instanceWithToken } from 'src/utils/instance';
@@ -174,6 +175,9 @@ export default function DocumentsPage() {
 
   return (
     <Container>
+      <Helmet>
+        <title> Documents </title>
+      </Helmet>
       <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
         <Typography variant="h4">Listado de Documentos Lote {loteId}</Typography>
       </Stack>

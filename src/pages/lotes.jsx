@@ -5,7 +5,7 @@ export default function LopesPage() {
   return (
     <>
       <Helmet>
-        <title> Empresas </title>
+        <title> Lotes </title>
       </Helmet>
 
       <LotesView />

@@ -52,6 +52,12 @@ export default function LoginView() {
           return;
         }
 
+        if (user.user.company.status != 'ACTIVO') {
+          toast.error(
+            'No puedes acceder tu empresa se encuentra inactiva, conversa con administracion!'
+          );
+        }
+
         Cookies.set('sesion', true);
         Cookies.set('user', user.user.username);
         Cookies.set('name', user.user.name);
