@@ -7,8 +7,10 @@ import { toast } from 'react-toastify';
 import Cookies from 'js-cookie';
 
 const VALID_DOCUMENT_TYPES = [
+  'Factura electrónica de Venta',
   'Factura Electrónica de Venta',
   'Factura electrónica de contingencia',
+  'Factura electrónica'
 ];
 
 export default function LoteModal({ open, onClose }) {
@@ -42,6 +44,8 @@ export default function LoteModal({ open, onClose }) {
     let validCount = 0;
     let invalidCount = 0;
     const invalidRecords = [];
+
+    console.log(data)
 
     data.forEach((record, index) => {
       const documentType = record['Tipo de documento'];
