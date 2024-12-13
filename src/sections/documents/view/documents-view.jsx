@@ -79,11 +79,11 @@ export default function DocumentsPage() {
     setFilterText(event.target.value); // Actualizar el texto del filtro
   };
 
-  const filteredDocuments = lote?.documents.filter(
+  const filteredDocuments = lote?.documents?.filter(
     (document) =>
-      document.nit_emisor.toLowerCase().includes(filterText.toLowerCase()) ||
-      document.razon_social_emisor.toLowerCase().includes(filterText.toLowerCase()) ||
-      document.nro_factura.toLowerCase().includes(filterText.toLowerCase())
+      (document.nit_emisor ?? '').toLowerCase().includes(filterText.toLowerCase()) ||
+      (document.razon_social_emisor ?? '').toLowerCase().includes(filterText.toLowerCase()) ||
+      (document.nro_factura ?? '').toLowerCase().includes(filterText.toLowerCase())
   );
 
   const handleExport = () => {
