@@ -6,6 +6,7 @@ import { instanceWithToken } from 'src/utils/instance';
 import { toast } from 'react-toastify';
 import Cookies from 'js-cookie';
 import { Loader2 } from "lucide-react"
+import { LoadingButton } from '@mui/lab';
 
 const VALID_DOCUMENT_TYPES = [
   'Factura electrónica de Venta',
@@ -117,7 +118,7 @@ export default function LoteModal({ open, onClose }) {
       const postResult = await instanceWithToken.post('lotes', jsonData);
       toast.success('El proceso de validación y revisión ha iniciado correctamente');
       handleClose();
-      setIsLoading(false)
+      setIsLoading(true)
       await instanceWithToken.get('lotes/procesar/cufes');
     } catch (error) {
       console.error('Error sending data:', error);
@@ -198,14 +199,14 @@ export default function LoteModal({ open, onClose }) {
                   <Button variant="outlined" onClick={resetState} color="secondary">
                     Reiniciar
                   </Button>
-                  <Button
+                  <LoadingButton
+                    loading={isLoading}
                     variant="contained"
                     onClick={iniciarProceso}
                     disabled={validationResults?.validCount === 0 || isLoading}
                   >
-                    <Loader2 className="animate-spin" />
                     Enviar Datos Válidos ({validationResults?.validCount} documentos)
-                  </Button>
+                  </LoadingButton>
                 </Stack>
               </>
             )}
