@@ -39,6 +39,7 @@ export default function LotePage() {
 
   const handleCloseModal = () => {
     setOpenModal(false);
+    getLotes()
   };
 
   const handleChangePage = (event, newPage) => {
