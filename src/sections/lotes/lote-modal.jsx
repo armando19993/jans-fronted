@@ -19,6 +19,7 @@ export default function LoteModal({ open, onClose }) {
   const [jsonData, setJsonData] = useState(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [validationResults, setValidationResults] = useState(null);
+  const [errorModalOpen, setErrorModalOpen] = useState(false); // Nuevo estado para el modal de error
 
   const resetState = () => {
     setFile(null);
@@ -45,7 +46,7 @@ export default function LoteModal({ open, onClose }) {
     let invalidCount = 0;
     const invalidRecords = [];
 
-    console.log(data)
+    console.log(data);
 
     data.forEach((record, index) => {
       const documentType = record['Tipo de documento'];
@@ -97,108 +98,141 @@ export default function LoteModal({ open, onClose }) {
   const iniciarProceso = async () => {
     if (!jsonData || jsonData.length === 0) return;
 
-    const result = await instanceWithToken.get('company/' + Cookies.get('companyId'));
-    if (validationResults.totalCount > result.data.data.ctda_documents) {
-      toast.error(
-        `No puedes procesar esta cantidad de documentos, por que excede tu limite. \n Cantidad Disponible: ${result.data.data.ctda_documents}, \n contacta con Jans Programming`
-      );
-      return;
-    }
-    let nuevaCtda = result.data.data.ctda_documents - validationResults.validCount;
-    await instanceWithToken.patch('company/' + Cookies.get('companyId'), {
-      ctda_documents: nuevaCtda,
-    });
-
     try {
-      const result = await instanceWithToken.post('lotes', jsonData);
-      toast.success('El proceso de validacion y revision ha iniciado correctamente');
+      const result = await instanceWithToken.get('company/' + Cookies.get('companyId'));
+      if (validationResults.totalCount > result.data.data.ctda_documents) {
+        toast.error(
+          `No puedes procesar esta cantidad de documentos, por que excede tu limite. \n Cantidad Disponible: ${result.data.data.ctda_documents}, \n contacta con Jans Programming`
+        );
+        return;
+      }
+
+      let nuevaCtda = result.data.data.ctda_documents - validationResults.validCount;
+      await instanceWithToken.patch('company/' + Cookies.get('companyId'), {
+        ctda_documents: nuevaCtda,
+      });
+
+      const postResult = await instanceWithToken.post('lotes', jsonData);
+      toast.success('El proceso de validación y revisión ha iniciado correctamente');
       handleClose();
       await instanceWithToken.get('lotes/procesar/cufes');
     } catch (error) {
       console.error('Error sending data:', error);
-      toast.error('Error al procesar el lote');
+      if (error.response && error.response.status === 400) {
+        handleClose();
+        setErrorModalOpen(true); // Muestra el modal de error
+      } else {
+        toast.error('Error al procesar el lote');
+      }
     }
   };
 
+  const closeErrorModal = () => {
+    setErrorModalOpen(false);
+  };
+
   return (
-    <Modal open={open} onClose={handleClose}>
-      <Box
-        sx={{
-          p: 3,
-          backgroundColor: 'white',
-          maxWidth: 500,
-          margin: 'auto',
-          mt: 5,
-          borderRadius: 2,
-        }}
-      >
-        <Typography variant="h6" mb={2}>
-          Cargar Lote
-        </Typography>
-        <Stack spacing={2}>
-          {!isProcessing ? (
-            <>
-              <input type="file" accept=".xlsx, .xls" onChange={handleFileChange} />
-              <Button variant="contained" onClick={handleSubmit}>
-                Procesar
-              </Button>
-            </>
-          ) : (
-            <>
-              <Typography variant="body1">Número de Lote: {resultado.numeroLote}</Typography>
+    <>
+      <Modal open={open} onClose={handleClose}>
+        <Box
+          sx={{
+            p: 3,
+            backgroundColor: 'white',
+            maxWidth: 500,
+            margin: 'auto',
+            mt: 5,
+            borderRadius: 2,
+          }}
+        >
+          <Typography variant="h6" mb={2}>
+            Cargar Lote
+          </Typography>
+          <Stack spacing={2}>
+            {!isProcessing ? (
+              <>
+                <input type="file" accept=".xlsx, .xls" onChange={handleFileChange} />
+                <Button variant="contained" onClick={handleSubmit}>
+                  Procesar
+                </Button>
+              </>
+            ) : (
+              <>
+                <Typography variant="body1">Número de Lote: {resultado.numeroLote}</Typography>
 
-              {validationResults && (
-                <Box sx={{ mt: 2 }}>
-                  <Typography variant="body1" fontWeight="bold" mb={1}>
-                    Resultado de la validación:
-                  </Typography>
-                  <Typography>Total de registros: {validationResults.totalCount}</Typography>
-                  <Typography color="success.main">
-                    Documentos válidos: {validationResults.validCount}
-                    <Typography variant="caption" component="div" color="text.secondary">
-                      (Solo Factura Electrónica de Venta y Factura electrónica de contingencia)
+                {validationResults && (
+                  <Box sx={{ mt: 2 }}>
+                    <Typography variant="body1" fontWeight="bold" mb={1}>
+                      Resultado de la validación:
                     </Typography>
-                  </Typography>
-                  <Typography color="error.main">
-                    Documentos no válidos: {validationResults.invalidCount}
-                  </Typography>
+                    <Typography>Total de registros: {validationResults.totalCount}</Typography>
+                    <Typography color="success.main">
+                      Documentos válidos: {validationResults.validCount}
+                    </Typography>
+                    <Typography color="error.main">
+                      Documentos no válidos: {validationResults.invalidCount}
+                    </Typography>
 
-                  {validationResults.invalidCount > 0 && (
-                    <Alert severity="warning" sx={{ mt: 1 }}>
-                      <Typography variant="body2" fontWeight="bold" mb={1}>
-                        Se encontraron documentos no válidos en las siguientes filas:
-                      </Typography>
-                      {validationResults.invalidRecords.map((record, index) => (
-                        <Typography variant="body2" key={index}>
-                          Fila {record.row}: {record.type}
+                    {validationResults.invalidCount > 0 && (
+                      <Alert severity="warning" sx={{ mt: 1 }}>
+                        <Typography variant="body2" fontWeight="bold" mb={1}>
+                          Se encontraron documentos no válidos en las siguientes filas:
                         </Typography>
-                      ))}
-                      <Typography variant="body2" mt={1} color="warning.dark">
-                        Solo se procesarán las Facturas Electrónicas de Venta y Facturas
-                        electrónicas de contingencia.
-                      </Typography>
-                    </Alert>
-                  )}
-                </Box>
-              )}
+                        {validationResults.invalidRecords.map((record, index) => (
+                          <Typography variant="body2" key={index}>
+                            Fila {record.row}: {record.type}
+                          </Typography>
+                        ))}
+                        <Typography variant="body2" mt={1} color="warning.dark">
+                          Solo se procesarán las Facturas Electrónicas de Venta y Facturas
+                          electrónicas de contingencia.
+                        </Typography>
+                      </Alert>
+                    )}
+                  </Box>
+                )}
 
-              <Stack direction="row" spacing={2} justifyContent="space-between">
-                <Button variant="outlined" onClick={resetState} color="secondary">
-                  Reiniciar
-                </Button>
-                <Button
-                  variant="contained"
-                  onClick={iniciarProceso}
-                  disabled={validationResults?.validCount === 0}
-                >
-                  Enviar Datos Válidos ({validationResults?.validCount} documentos)
-                </Button>
-              </Stack>
-            </>
-          )}
-        </Stack>
-      </Box>
-    </Modal>
+                <Stack direction="row" spacing={2} justifyContent="space-between">
+                  <Button variant="outlined" onClick={resetState} color="secondary">
+                    Reiniciar
+                  </Button>
+                  <Button
+                    variant="contained"
+                    onClick={iniciarProceso}
+                    disabled={validationResults?.validCount === 0}
+                  >
+                    Enviar Datos Válidos ({validationResults?.validCount} documentos)
+                  </Button>
+                </Stack>
+              </>
+            )}
+          </Stack>
+        </Box>
+      </Modal>
+
+      <Modal open={errorModalOpen} onClose={closeErrorModal}>
+        <Box
+          sx={{
+            p: 3,
+            backgroundColor: 'white',
+            maxWidth: 400,
+            margin: 'auto',
+            mt: 5,
+            borderRadius: 2,
+            textAlign: 'center',
+          }}
+        >
+          <Typography variant="h6" mb={2}>
+            Problemas de Conexión
+          </Typography>
+          <Typography variant="body1" mb={2}>
+            En estos momentos presentamos problemas para la conexión con DIAN. Por favor, inténtalo más tarde.
+          </Typography>
+          <Button variant="contained" onClick={closeErrorModal}>
+            Cerrar
+          </Button>
+        </Box>
+      </Modal>
+    </>
   );
 }
 
