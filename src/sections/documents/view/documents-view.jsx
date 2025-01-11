@@ -225,6 +225,7 @@ export default function DocumentsPage() {
                 <TableHead>
                   <TableRow>
                     <TableCell>Tipo Documento</TableCell>
+                    <TableCell>Forma de Pago</TableCell>
                     <TableCell>Número Documento</TableCell>
                     <TableCell>Fecha de Documento</TableCell>
                     <TableCell>Emisor</TableCell>
@@ -237,6 +238,7 @@ export default function DocumentsPage() {
                   {filteredDocuments.map((document, index) => (
                     <TableRow key={index}>
                       <TableCell>{document.tipo}</TableCell>
+                      <TableCell>{document.forma_pago}</TableCell>
                       <TableCell>{document.nro_factura}</TableCell>
                       <TableCell>{new Date(document.date_factura).toLocaleDateString()}</TableCell>
                       <TableCell>{`${document.nit_emisor} - ${document.razon_social_emisor}`}</TableCell>
