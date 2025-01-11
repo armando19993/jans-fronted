@@ -5,6 +5,7 @@ import * as XLSX from 'xlsx';
 import { instanceWithToken } from 'src/utils/instance';
 import { toast } from 'react-toastify';
 import Cookies from 'js-cookie';
+import { Loader2 } from "lucide-react"
 
 const VALID_DOCUMENT_TYPES = [
   'Factura electrónica de Venta',
@@ -20,6 +21,7 @@ export default function LoteModal({ open, onClose }) {
   const [isProcessing, setIsProcessing] = useState(false);
   const [validationResults, setValidationResults] = useState(null);
   const [errorModalOpen, setErrorModalOpen] = useState(false); // Nuevo estado para el modal de error
+  const [isLoading, setIsLoading] = useState(false)
 
   const resetState = () => {
     setFile(null);
@@ -71,7 +73,6 @@ export default function LoteModal({ open, onClose }) {
 
   const handleSubmit = async () => {
     if (!file) return;
-
     const data = await file.arrayBuffer();
     const workbook = XLSX.read(data);
     const sheetName = workbook.SheetNames[0];
@@ -99,6 +100,7 @@ export default function LoteModal({ open, onClose }) {
     if (!jsonData || jsonData.length === 0) return;
 
     try {
+      setIsLoading(true)
       const result = await instanceWithToken.get('company/' + Cookies.get('companyId'));
       if (validationResults.totalCount > result.data.data.ctda_documents) {
         toast.error(
@@ -115,6 +117,7 @@ export default function LoteModal({ open, onClose }) {
       const postResult = await instanceWithToken.post('lotes', jsonData);
       toast.success('El proceso de validación y revisión ha iniciado correctamente');
       handleClose();
+      setIsLoading(false)
       await instanceWithToken.get('lotes/procesar/cufes');
     } catch (error) {
       console.error('Error sending data:', error);
@@ -198,8 +201,9 @@ export default function LoteModal({ open, onClose }) {
                   <Button
                     variant="contained"
                     onClick={iniciarProceso}
-                    disabled={validationResults?.validCount === 0}
+                    disabled={validationResults?.validCount === 0 || isLoading}
                   >
+                    <Loader2 className="animate-spin" />
                     Enviar Datos Válidos ({validationResults?.validCount} documentos)
                   </Button>
                 </Stack>

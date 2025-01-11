@@ -33,6 +33,7 @@
     "history": "^5.3.0",
     "js-cookie": "^3.0.5",
     "lodash": "^4.17.21",
+    "lucide-react": "^0.471.0",
     "numeral": "^2.0.6",
     "prop-types": "^15.8.1",
     "quill": "^2.0.2",
