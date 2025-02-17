@@ -12,8 +12,6 @@ import LoteTableRow from '../lote-table-row';
 import CompanyTableHead from 'src/sections/company/company-table-head';
 import { Helmet } from 'react-helmet-async';
 
-// ----------------------------------------------------------------------
-
 export default function LotePage() {
   const [openModal, setOpenModal] = useState(false);
   const [selected, setSelected] = useState([]);
