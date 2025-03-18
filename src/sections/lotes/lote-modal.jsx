@@ -7,6 +7,7 @@ import { toast } from 'react-toastify';
 import Cookies from 'js-cookie';
 import { Loader2 } from "lucide-react"
 import { LoadingButton } from '@mui/lab';
+import { useNavigate } from 'react-router-dom';
 
 const VALID_DOCUMENT_TYPES = [
   'Factura electrónica de Venta',
@@ -16,6 +17,7 @@ const VALID_DOCUMENT_TYPES = [
 ];
 
 export default function LoteModal({ open, onClose }) {
+  const navigate = useNavigate()
   const [file, setFile] = useState(null);
   const [resultado, setResultado] = useState(null);
   const [jsonData, setJsonData] = useState(null);
@@ -119,7 +121,8 @@ export default function LoteModal({ open, onClose }) {
       toast.success('El proceso de validación y revisión ha iniciado correctamente');
       handleClose();
       setIsLoading(true)
-      await instanceWithToken.get('lotes/procesar/cufes');
+      console.log(postResult.data.data.id)
+      navigate('/dashboard/documents/' + postResult.data.data.id)
     } catch (error) {
       console.error('Error sending data:', error);
       if (error.response && error.response.status === 400) {

@@ -21,6 +21,8 @@ import {
   DialogActions,
   Alert,
   TextField,
+  Modal,
+  Box,
 } from '@mui/material';
 import axios from 'axios';
 import { useEffect, useState } from 'react';
@@ -32,6 +34,7 @@ import { instanceWithToken } from 'src/utils/instance';
 export default function DocumentsPage() {
   const { loteId } = useParams();
   const navigate = useNavigate();
+  const [modalUrl, setModalUrl] = useState(false)
   const [lote, setLote] = useState(null);
   const [loading, setLoading] = useState(true); // Estado de carga
   const [openMenu, setOpenMenu] = useState(null); // Estado del menú
@@ -49,12 +52,14 @@ export default function DocumentsPage() {
     events: [],
     factura_pdf: null,
   }); // Documento seleccionado
+  const [isProcessing, setIsProcessing] = useState(false);
   const [openDialog, setOpenDialog] = useState(false); // Estado del modal
   const [openPdfDialog, setOpenPdfDialog] = useState(false);
   const [pdfLoading, setPdfLoading] = useState(false);
   const [pdfError, setPdfError] = useState(null);
   const [pdfData, setPdfData] = useState(null);
   const [filterText, setFilterText] = useState(''); // Estado para el filtro de búsqueda
+  const [token_dian, setTokenDian] = useState('');
 
   const getDocuments = () => {
     setLoading(true);
@@ -62,6 +67,9 @@ export default function DocumentsPage() {
       .get('lotes/' + loteId)
       .then((result) => {
         setLote(result.data.data);
+        if (!result.data.data.procesado) {
+          alert("Este lote no se ha procesado presiona el boton procesar y espera unos minutos antes de volver a consultar")
+        }
       })
       .catch((error) => {
         console.error(error);
@@ -153,6 +161,22 @@ export default function DocumentsPage() {
     handleCloseMenu();
   };
 
+  const handleSubmitProcess = () => {
+    setIsProcessing(true)
+    instanceWithToken.post('lotes/procesar/cufes', {
+      authUrl: token_dian,
+      partitionKey: "string",
+      loteId: loteId
+    })
+      .then(() => {
+        setModalUrl(false);
+        getDocuments();
+      })
+      .catch((error) => {
+        console.error('Error al procesar el lote:', error);
+      });
+  }
+
   if (loading) {
     return (
       <Container>
@@ -175,6 +199,31 @@ export default function DocumentsPage() {
 
   return (
     <Container>
+      <Modal open={modalUrl} onClose={setModalUrl}>
+        <Box
+          sx={{
+            p: 3,
+            backgroundColor: 'white',
+            maxWidth: 400,
+            margin: 'auto',
+            mt: 5,
+            borderRadius: 2,
+          }}
+        >
+          <Typography variant="h6">Ingrese su token Dian</Typography>
+          <Stack spacing={2} mt={2}>
+            {!isProcessing && <TextField label="Token Dian" name="token_dian" value={token_dian} onChange={(event) => setTokenDian(event.target.value)} />}
+
+            {isProcessing && <CircularProgress />}
+            {isProcessing && <Typography variant="body1">Estamos procesando el lote, por favor, espere...</Typography>}
+
+            <Button variant="contained" onClick={handleSubmitProcess} disabled={isProcessing}>
+              {isProcessing ? 'Procesando...' : 'Procesar'}
+            </Button>
+          </Stack>
+        </Box>
+      </Modal>
+
       <Helmet>
         <title> Documents </title>
       </Helmet>
@@ -200,6 +249,10 @@ export default function DocumentsPage() {
               </Typography>
             </Stack>
             <Stack direction="row" justifyContent="flex-end" sx={{ mt: 2 }}>
+              {!lote.procesado ? <Button color="error" onClick={() => setModalUrl(true)}>
+                <Iconify icon="material-symbols:procedure-outline-rounded" sx={{ mr: 2 }} /> Procesar
+              </Button> : 'Este lote ya se ha procesado'}
+
               <Button color="success" onClick={handleExport}>
                 <Iconify icon="catppuccin:ms-excel" sx={{ mr: 2 }} /> Exportar a Excel
               </Button>
