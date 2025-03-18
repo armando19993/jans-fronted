@@ -440,9 +440,9 @@ export default function DocumentsPage() {
               )}
             </Grid>
             <Stack direction="row" spacing={2}>
-              <Button color="primary" onClick={handleOpenPdfDialog}>
+              {/* <Button color="primary" onClick={handleOpenPdfDialog}>
                 Ver PDF
-              </Button>
+              </Button> */}
               <Button
                 color="primary"
                 onClick={() =>
