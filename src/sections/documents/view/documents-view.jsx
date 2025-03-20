@@ -30,6 +30,7 @@ import { Helmet } from 'react-helmet-async';
 import { useParams, useNavigate } from 'react-router-dom';
 import Iconify from 'src/components/iconify';
 import { instanceWithToken } from 'src/utils/instance';
+import { toast } from 'react-toastify';
 
 export default function DocumentsPage() {
   const { loteId } = useParams();
@@ -182,6 +183,9 @@ export default function DocumentsPage() {
       toast.error('El token esta vencido, intenta con otro.');
       setIsProcessing(false)
       setModalUrl(false)
+    }).finally(() => {
+      setModalUrl(false)
+      setIsProcessing(false)
     })
 
   }
