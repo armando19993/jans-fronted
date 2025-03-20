@@ -12,30 +12,42 @@ const navConfig = [
     path: '/dashboard',
     icon: icon('ic_analytics'),
     roles: ['SADMIN', 'ADMIN', 'OPERATOR'],
+    requiredService: null,
   },
   {
     title: 'usuarios',
     path: '/dashboard/user',
     icon: icon('ic_user'),
     roles: ['SADMIN', 'ADMIN'],
+    requiredService: null,
   },
   {
     title: 'empresas',
     path: '/dashboard/company',
     icon: icon('ic_company'),
     roles: ['SADMIN'],
+    requiredService: null,
   },
   {
     title: 'comunicados',
     path: '/dashboard/comunications',
     icon: icon('ic_company'),
     roles: ['SADMIN'],
+    requiredService: null,
   },
   {
     title: 'lotes',
     path: '/dashboard/lotes',
     icon: icon('ic_company'),
     roles: ['SADMIN', 'ADMIN', 'OPERATOR'],
+    requiredService: 'service_radian',
+  },
+  {
+    title: 'dondload xml',
+    path: '/dashboard/lotes',
+    icon: icon('ic_company'),
+    roles: ['SADMIN', 'ADMIN', 'OPERATOR'],
+    requiredService: 'service_download',
   },
 ];
 

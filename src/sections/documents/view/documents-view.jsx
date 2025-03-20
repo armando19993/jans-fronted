@@ -163,18 +163,27 @@ export default function DocumentsPage() {
 
   const handleSubmitProcess = () => {
     setIsProcessing(true)
-    instanceWithToken.post('lotes/procesar/cufes', {
+    axios.post('https://lector.jansprogramming.com.co/validar_token', {
       authUrl: token_dian,
-      partitionKey: "string",
-      loteId: loteId
-    })
-      .then(() => {
-        setModalUrl(false);
-        getDocuments();
+    }).then(() => {
+      instanceWithToken.post('lotes/procesar/cufes', {
+        authUrl: token_dian,
+        partitionKey: "string",
+        loteId: loteId
       })
-      .catch((error) => {
-        console.error('Error al procesar el lote:', error);
-      });
+        .then(() => {
+          setModalUrl(false);
+          getDocuments();
+        })
+        .catch((error) => {
+          console.error('Error al procesar el lote:', error);
+        });
+    }).catch(() => {
+      toast.error('El token esta vencido, intenta con otro.');
+      setIsProcessing(false)
+      setModalUrl(false)
+    })
+
   }
 
   if (loading) {

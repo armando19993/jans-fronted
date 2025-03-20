@@ -69,7 +69,8 @@ export default function LoginView() {
         Cookies.set('token', user.token);
         Cookies.set('companyId', user.user.company ? user.user.company.id : null);
         Cookies.set('companyName', user.user.company ? user.user.company.name : null);
-
+        Cookies.set('service_download', user.user.company ? user.user.company.service_download : null);
+        Cookies.set('service_radian', user.user.company ? user.user.company.service_radian : null);
         navigate('/dashboard');
       })
       .catch((e) => {

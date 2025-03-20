@@ -1,6 +1,5 @@
 import { useEffect } from 'react';
 import PropTypes from 'prop-types';
-
 import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
 import Drawer from '@mui/material/Drawer';
@@ -8,24 +7,17 @@ import Avatar from '@mui/material/Avatar';
 import { alpha } from '@mui/material/styles';
 import Typography from '@mui/material/Typography';
 import ListItemButton from '@mui/material/ListItemButton';
-
 import { usePathname } from 'src/routes/hooks';
 import { RouterLink } from 'src/routes/components';
-
 import { useResponsive } from 'src/hooks/use-responsive';
-
 import Logo from 'src/components/logo';
 import Scrollbar from 'src/components/scrollbar';
-
 import { NAV } from './config-layout';
 import navConfig from './config-navigation';
 import Cookies from 'js-cookie';
 
-// ----------------------------------------------------------------------
-
 export default function Nav({ openNav, onCloseNav }) {
   const pathname = usePathname();
-
   const upLg = useResponsive('up', 'lg');
 
   useEffect(() => {
@@ -49,10 +41,8 @@ export default function Nav({ openNav, onCloseNav }) {
       }}
     >
       <Avatar src={'/assets/images/avatars/avatar_25.jpg'} alt="photoURL" />
-
       <Box sx={{ ml: 2 }}>
         <Typography variant="subtitle2">{Cookies.get('name')}</Typography>
-
         <Typography variant="body2" sx={{ color: 'text.secondary' }}>
           {Cookies.get('user')}
         </Typography>
@@ -63,7 +53,13 @@ export default function Nav({ openNav, onCloseNav }) {
   const renderMenu = (
     <Stack component="nav" spacing={0.5} sx={{ px: 2 }}>
       {navConfig
-        .filter((item) => item.roles.includes(Cookies.get('role'))) // Filtrar según el rol
+        .filter((item) => {
+          const hasRole = item.roles.includes(Cookies.get('role'));
+          const hasService = item.requiredService
+            ? Cookies.get(item.requiredService) === 'true'
+            : true;
+          return hasRole && hasService;
+        })
         .map((item) => (
           <NavItem key={item.title} item={item} />
         ))}
@@ -82,11 +78,8 @@ export default function Nav({ openNav, onCloseNav }) {
       }}
     >
       <Logo sx={{ mt: 3, ml: 4 }} />
-
       {renderAccount}
-
       {renderMenu}
-
       <Box sx={{ flexGrow: 1 }} />
     </Scrollbar>
   );
@@ -131,11 +124,8 @@ Nav.propTypes = {
   onCloseNav: PropTypes.func,
 };
 
-// ----------------------------------------------------------------------
-
 function NavItem({ item }) {
   const pathname = usePathname();
-
   const active = item.path === pathname;
 
   return (
@@ -162,8 +152,7 @@ function NavItem({ item }) {
       <Box component="span" sx={{ width: 24, height: 24, mr: 2 }}>
         {item.icon}
       </Box>
-
-      <Box component="span">{item.title} </Box>
+      <Box component="span">{item.title}</Box>
     </ListItemButton>
   );
 }

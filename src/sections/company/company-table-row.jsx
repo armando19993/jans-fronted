@@ -1,12 +1,9 @@
 import { useState } from 'react';
 import PropTypes from 'prop-types';
-import Stack from '@mui/material/Stack';
 import Popover from '@mui/material/Popover';
 import TableRow from '@mui/material/TableRow';
-import Checkbox from '@mui/material/Checkbox';
 import MenuItem from '@mui/material/MenuItem';
 import TableCell from '@mui/material/TableCell';
-import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
 import Label from 'src/components/label';
 import Iconify from 'src/components/iconify';
@@ -28,6 +25,8 @@ export default function CompanyTableRow({
   email,
   phone,
   status,
+  service_radian,
+  service_download
 }) {
   const [openMenu, setOpenMenu] = useState(null);
   const [openModal, setOpenModal] = useState(false);
@@ -140,7 +139,7 @@ export default function CompanyTableRow({
         onClose={handleCloseModal}
         onSubmit={handleEditSubmit}
         isEdit={true}
-        initialData={{ nit, name, ctda_users, ctda_documents, date_start, date_end, phone, email }}
+        initialData={{ nit, name, ctda_users, ctda_documents, date_start, date_end, phone, email, service_download, service_radian }}
       />
     </>
   );

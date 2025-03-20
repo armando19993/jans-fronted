@@ -223,6 +223,8 @@ export default function CompanyPage() {
                       onActivate={activate}
                       email={row.email}
                       phone={row.phone}
+                      service_download={row.service_download}
+                      service_radian={row.service_radian}
                       status={row.status}
                       id={row.id}
                     />

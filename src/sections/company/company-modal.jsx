@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
 import { useState, useEffect } from 'react';
-import { Modal, Box, TextField, Button, Typography, Stack } from '@mui/material';
+import { Modal, Box, TextField, Button, Typography, Stack, Switch, FormControlLabel } from '@mui/material';
 
 export default function CompanyModal({ open, onClose, onSubmit, isEdit, initialData }) {
   const [formData, setFormData] = useState({
@@ -10,11 +10,17 @@ export default function CompanyModal({ open, onClose, onSubmit, isEdit, initialD
     ctda_documents: '',
     date_start: '',
     date_end: '',
+    service_radian: true, // Valor por defecto
+    service_download: false, // Valor por defecto
   });
 
   useEffect(() => {
     if (isEdit && initialData) {
-      setFormData(initialData);
+      setFormData({
+        ...initialData,
+        service_radian: initialData.service_radian !== undefined ? initialData.service_radian : true,
+        service_download: initialData.service_download !== undefined ? initialData.service_download : false,
+      });
     }
   }, [isEdit, initialData]);
 
@@ -31,6 +37,8 @@ export default function CompanyModal({ open, onClose, onSubmit, isEdit, initialD
       ctda_documents: '',
       date_start: '',
       date_end: '',
+      service_radian: true, // Restablecer a los valores por defecto
+      service_download: false, // Restablecer a los valores por defecto
     });
     onClose();
   };
@@ -97,6 +105,26 @@ export default function CompanyModal({ open, onClose, onSubmit, isEdit, initialD
             InputLabelProps={{
               shrink: true,
             }}
+          />
+          <FormControlLabel
+            control={
+              <Switch
+                checked={formData.service_radian}
+                onChange={(e) => setFormData({ ...formData, service_radian: e.target.checked })}
+                name="service_radian"
+              />
+            }
+            label="Servicio Radian"
+          />
+          <FormControlLabel
+            control={
+              <Switch
+                checked={formData.service_download}
+                onChange={(e) => setFormData({ ...formData, service_download: e.target.checked })}
+                name="service_download"
+              />
+            }
+            label="Servicio Descarga"
           />
           <Button variant="contained" onClick={handleSubmit}>
             {isEdit ? 'Guardar Cambios' : 'Agregar Empresa'}
