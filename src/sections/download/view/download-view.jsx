@@ -201,7 +201,7 @@ export default function DownloadPage() {
                         autoClose: 5000
                     });
                 });
-        }, 60000);
+        }, 10000);
 
         return () => {
             clearInterval(statusInterval);
