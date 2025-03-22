@@ -4,7 +4,6 @@ import {
     Stack,
     Typography,
     TextField,
-    Button,
     Box,
     Alert,
     CircularProgress,
@@ -17,6 +16,7 @@ import {
     IconButton,
     Tooltip,
 } from "@mui/material";
+import Button from '@mui/material/Button';
 import {
     DatePicker
 } from "@mui/x-date-pickers/DatePicker";
@@ -42,6 +42,7 @@ export default function DownloadPage() {
     const [downloadComplete, setDownloadComplete] = useState(false);
     const [loading2, setLoading2] = useState(false);
     const [serviceDownloadActive, setServiceDownloadActive] = useState(false); // Estado para verificar si el servicio está activo
+    const [showProcessAlert, setShowProcessAlert] = useState(false); // Estado para controlar la visibilidad de la alerta
 
     // Verificar el servicio de descarga al cargar la vista
     useEffect(() => {
@@ -75,42 +76,50 @@ export default function DownloadPage() {
     };
 
     const tokenActive = async (url) => {
-        setLoading2(true);
         try {
             const response = await axios.post('https://lector.jansprogramming.com.co/validar_token', {
                 authUrl: url,
             });
-            setLoading2(false);
             return response.status === 200; // Asumiendo que un código 200 significa que el token es válido
         } catch (error) {
-            setLoading2(false);
             return false; // Si hay un error (como un 404), el token no es válido
         }
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setLoading2(true); // Activar el estado de carga del botón
+        setShowProcessAlert(true); // Mostrar la alerta de proceso iniciado
 
         if (!serviceDownloadActive) {
             toast.error("No tienes acceso a esta función. Contacta al administrador.", {
                 position: "top-center",
                 autoClose: 5000,
             });
+            setLoading2(false); // Desactivar el estado de carga del botón
+            setShowProcessAlert(false); // Ocultar la alerta de proceso iniciado
             return;
         }
 
         if (!isValidUrl(url)) {
             setError("La URL debe comenzar con https://catalogo-vpfe.dian.gov.co/User/AuthToken?");
+            setLoading2(false); // Desactivar el estado de carga del botón
+            setShowProcessAlert(false); // Ocultar la alerta de proceso iniciado
             return;
         }
 
         const isTokenValid = await tokenActive(url);
+
         if (!isTokenValid) {
             setError("Este token está vencido o es inválido.");
+            setLoading2(false); // Desactivar el estado de carga del botón
+            setShowProcessAlert(false); // Ocultar la alerta de proceso iniciado
             return;
         }
 
         if (!validateDates()) {
+            setLoading2(false); // Desactivar el estado de carga del botón
+            setShowProcessAlert(false); // Ocultar la alerta de proceso iniciado
             return;
         }
 
@@ -142,6 +151,8 @@ export default function DownloadPage() {
             setError("Error al iniciar el proceso de descarga. Por favor, intente nuevamente.");
             setIsProcessing(false);
             setActiveStep(0);
+            setLoading2(false); // Desactivar el estado de carga del botón
+            setShowProcessAlert(false); // Ocultar la alerta de proceso iniciado
             toast.error("Error al iniciar la descarga", {
                 position: "top-right",
                 autoClose: 5000
@@ -160,6 +171,7 @@ export default function DownloadPage() {
         setIsProcessing(false);
         setActiveStep(0);
         setDownloadComplete(false);
+        setShowProcessAlert(false); // Ocultar la alerta de proceso iniciado
     };
 
     const copyToClipboard = () => {
@@ -194,6 +206,8 @@ export default function DownloadPage() {
                                 setIsProcessing(false);
                                 setDownloadComplete(true);
                                 setActiveStep(2);
+                                setLoading2(false); // Desactivar el estado de carga del botón
+                                setShowProcessAlert(false); // Ocultar la alerta de proceso iniciado
 
                                 toast.success("¡Archivo descargado exitosamente!", {
                                     position: "top-center",
@@ -204,6 +218,8 @@ export default function DownloadPage() {
                                 setError("Error al descargar el archivo. Intente nuevamente.");
                                 setIsProcessing(false);
                                 setActiveStep(0);
+                                setLoading2(false); // Desactivar el estado de carga del botón
+                                setShowProcessAlert(false); // Ocultar la alerta de proceso iniciado
                                 toast.error("Error en la descarga del archivo", {
                                     position: "top-right",
                                     autoClose: 5000
@@ -216,6 +232,8 @@ export default function DownloadPage() {
                     clearInterval(statusInterval);
                     setIsProcessing(false);
                     setActiveStep(0);
+                    setLoading2(false); // Desactivar el estado de carga del botón
+                    setShowProcessAlert(false); // Ocultar la alerta de proceso iniciado
                     toast.error("Error al verificar el estado de la descarga", {
                         position: "top-right",
                         autoClose: 5000
@@ -266,6 +284,14 @@ export default function DownloadPage() {
                         <Fade in={activeStep === 0}>
                             <Box component="form" onSubmit={handleSubmit}>
                                 <Stack spacing={3}>
+                                    {showProcessAlert && (
+                                        <Alert severity="info" sx={{ mt: 2 }}>
+                                            <Typography variant="body1">
+                                                Se ha iniciado el proceso de validación. Por favor, espere...
+                                            </Typography>
+                                        </Alert>
+                                    )}
+
                                     <Box sx={{ position: 'relative' }}>
                                         <TextField
                                             fullWidth
@@ -351,10 +377,10 @@ export default function DownloadPage() {
                                             borderRadius: 2,
                                             fontSize: '1.1rem'
                                         }}
-                                        startIcon={<CloudDownload />}
-                                        disabled={!serviceDownloadActive} // Deshabilitar si el servicio no está activo
+                                        startIcon={loading2 ? <CircularProgress size={24} /> : <CloudDownload />}
+                                        disabled={!serviceDownloadActive || loading2} // Deshabilitar si el servicio no está activo o si está cargando
                                     >
-                                        Iniciar Descarga
+                                        {loading2 ? "Procesando..." : "Iniciar Descarga"}
                                     </Button>
                                 </Stack>
                             </Box>
