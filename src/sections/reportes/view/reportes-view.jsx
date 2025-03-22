@@ -108,7 +108,7 @@ export default function ReportesPage() {
             <TableContainer component={Paper} elevation={3} sx={{ borderRadius: '12px', overflow: 'hidden' }}>
                 <Table>
                     <TableHead>
-                        <TableRow sx={{ backgroundColor: '#1565c0' }}>
+                        <TableRow>
                             <TableCell sx={{ color: '#fff', fontWeight: 600 }}>ID Compañía</TableCell>
                             <TableCell sx={{ color: '#fff', fontWeight: 600 }}>Nombre Compañía</TableCell>
                             <TableCell align="right" sx={{ color: '#fff', fontWeight: 600 }}>Total Lotes</TableCell>
