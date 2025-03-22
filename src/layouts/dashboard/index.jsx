@@ -30,7 +30,7 @@ export default function DashboardLayout({ children }) {
   };
 
   const handleWebClick = () => {
-    window.open('https://www.jansprogramming.com.co/', '_blank');
+    window.open('https://www.jansconsulting.com.co/', '_blank');
   };
 
   const handleYoutubeClick = () => {
