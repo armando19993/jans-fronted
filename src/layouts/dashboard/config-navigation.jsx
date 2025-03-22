@@ -49,6 +49,13 @@ const navConfig = [
     roles: ['SADMIN', 'ADMIN', 'OPERATOR'],
     requiredService: 'service_download',
   },
+  {
+    title: 'reportes',
+    path: '/dashboard/reportes',
+    icon: icon('ic_company'),
+    roles: ['SADMIN'],
+    requiredService: null
+  },
 ];
 
 export default navConfig;
