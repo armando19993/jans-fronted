@@ -162,6 +162,12 @@ export default function DocumentsPage() {
     handleCloseMenu();
   };
 
+  const handleCloseTokenModal = () => {
+    if (!isProcessing) {
+      setModalUrl(false);
+    }
+  };
+
   const handleSubmitProcess = () => {
     setIsProcessing(true)
     axios.post('https://lector.jansprogramming.com.co/validar_token', {
@@ -187,7 +193,6 @@ export default function DocumentsPage() {
       setModalUrl(false)
       setIsProcessing(false)
     })
-
   }
 
   if (loading) {
@@ -212,7 +217,16 @@ export default function DocumentsPage() {
 
   return (
     <Container>
-      <Modal open={modalUrl} onClose={setModalUrl}>
+      <Modal
+        open={modalUrl}
+        onClose={handleCloseTokenModal}
+        closeAfterTransition
+        slotProps={{
+          backdrop: {
+            onClick: handleCloseTokenModal  // Permitir cerrar al hacer clic fuera
+          }
+        }}
+      >
         <Box
           sx={{
             p: 3,
@@ -221,9 +235,17 @@ export default function DocumentsPage() {
             margin: 'auto',
             mt: 5,
             borderRadius: 2,
+            outline: 'none',  // Eliminar el contorno al enfocar
           }}
         >
-          <Typography variant="h6">Ingrese su token Dian</Typography>
+          <Stack direction="row" justifyContent="space-between" alignItems="center" mb={2}>
+            <Typography variant="h6">Ingrese su token Dian</Typography>
+            {!isProcessing && (
+              <IconButton onClick={handleCloseTokenModal} size="small">
+                <Iconify icon="eva:close-fill" />
+              </IconButton>
+            )}
+          </Stack>
           <Stack spacing={2} mt={2}>
             {!isProcessing && <TextField label="Token Dian" name="token_dian" value={token_dian} onChange={(event) => setTokenDian(event.target.value)} />}
 
