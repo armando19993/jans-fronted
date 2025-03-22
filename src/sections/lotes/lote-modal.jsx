@@ -23,7 +23,7 @@ export default function LoteModal({ open, onClose }) {
   const [jsonData, setJsonData] = useState(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [validationResults, setValidationResults] = useState(null);
-  const [errorModalOpen, setErrorModalOpen] = useState(false); // Nuevo estado para el modal de error
+  const [errorModalOpen, setErrorModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false)
 
   const resetState = () => {
@@ -127,7 +127,7 @@ export default function LoteModal({ open, onClose }) {
       console.error('Error sending data:', error);
       if (error.response && error.response.status === 400) {
         handleClose();
-        setErrorModalOpen(true); // Muestra el modal de error
+        setErrorModalOpen(true);
       } else {
         toast.error('Error al procesar el lote');
       }
@@ -149,6 +149,8 @@ export default function LoteModal({ open, onClose }) {
             margin: 'auto',
             mt: 5,
             borderRadius: 2,
+            maxHeight: '90vh',
+            overflow: 'auto',
           }}
         >
           <Typography variant="h6" mb={2}>
@@ -184,11 +186,22 @@ export default function LoteModal({ open, onClose }) {
                         <Typography variant="body2" fontWeight="bold" mb={1}>
                           Se encontraron documentos no válidos en las siguientes filas:
                         </Typography>
-                        {validationResults.invalidRecords.map((record, index) => (
-                          <Typography variant="body2" key={index}>
-                            Fila {record.row}: {record.type}
-                          </Typography>
-                        ))}
+                        <Box
+                          sx={{
+                            maxHeight: '150px',
+                            overflowY: 'auto',
+                            border: '1px solid #f5f5f5',
+                            borderRadius: 1,
+                            p: 1,
+                            mb: 1
+                          }}
+                        >
+                          {validationResults.invalidRecords.map((record, index) => (
+                            <Typography variant="body2" key={index}>
+                              Fila {record.row}: {record.type}
+                            </Typography>
+                          ))}
+                        </Box>
                         <Typography variant="body2" mt={1} color="warning.dark">
                           Solo se procesarán las Facturas Electrónicas de Venta y Facturas
                           electrónicas de contingencia.
