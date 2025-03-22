@@ -113,7 +113,6 @@ export default function ReportesPage() {
                             <TableCell sx={{ color: '#fff', fontWeight: 600 }}>Nombre Compañía</TableCell>
                             <TableCell align="right" sx={{ color: '#fff', fontWeight: 600 }}>Total Lotes</TableCell>
                             <TableCell align="right" sx={{ color: '#fff', fontWeight: 600 }}>Total Documentos</TableCell>
-                            <TableCell align="center" sx={{ color: '#fff', fontWeight: 600 }}>Acciones</TableCell>
                         </TableRow>
                     </TableHead>
                     <TableBody>
@@ -130,23 +129,6 @@ export default function ReportesPage() {
                                     <TableCell>{lote.companyName}</TableCell>
                                     <TableCell align="right">{lote.totalLotes}</TableCell>
                                     <TableCell align="right">{lote.totalDocuments}</TableCell>
-                                    <TableCell align="center">
-                                        <Tooltip title="Ver detalles">
-                                            <IconButton size="small">
-                                                <Iconify icon="eva:eye-fill" />
-                                            </IconButton>
-                                        </Tooltip>
-                                        <Tooltip title="Editar">
-                                            <IconButton size="small">
-                                                <Iconify icon="eva:edit-fill" />
-                                            </IconButton>
-                                        </Tooltip>
-                                        <Tooltip title="Eliminar">
-                                            <IconButton size="small" color="error">
-                                                <Iconify icon="eva:trash-2-fill" />
-                                            </IconButton>
-                                        </Tooltip>
-                                    </TableCell>
                                 </TableRow>
                             ))
                         ) : (
