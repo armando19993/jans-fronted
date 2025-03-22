@@ -58,6 +58,7 @@ export default function CompanyModal({ open, onClose, onSubmit, isEdit, initialD
           position: 'absolute',
           top: '50%',
           left: '50%',
+          width: '25%',
           transform: 'translate(-50%, -50%)', // Centra el modal en la pantalla
         }}
       >
