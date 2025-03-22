@@ -50,9 +50,15 @@ export default function CompanyModal({ open, onClose, onSubmit, isEdit, initialD
           p: 3,
           backgroundColor: 'white',
           maxWidth: 400,
+          maxHeight: '90vh', // Altura máxima del 90% de la ventana
           margin: 'auto',
           mt: 5,
           borderRadius: 2,
+          overflow: 'auto', // Habilita el scroll cuando el contenido excede las dimensiones
+          position: 'absolute',
+          top: '50%',
+          left: '50%',
+          transform: 'translate(-50%, -50%)', // Centra el modal en la pantalla
         }}
       >
         <Typography variant="h6">{isEdit ? 'Editar Empresa' : 'Agregar Empresa'}</Typography>
