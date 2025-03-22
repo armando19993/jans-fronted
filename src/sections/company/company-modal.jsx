@@ -49,7 +49,7 @@ export default function CompanyModal({ open, onClose, onSubmit, isEdit, initialD
         sx={{
           p: 3,
           backgroundColor: 'white',
-          maxWidth: 400,
+          maxWidth: '25wh',
           maxHeight: '90vh', // Altura máxima del 90% de la ventana
           margin: 'auto',
           mt: 5,

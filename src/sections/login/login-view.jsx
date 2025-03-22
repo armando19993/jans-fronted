@@ -9,6 +9,7 @@ import IconButton from '@mui/material/IconButton';
 import LoadingButton from '@mui/lab/LoadingButton';
 import { alpha, useTheme } from '@mui/material/styles';
 import InputAdornment from '@mui/material/InputAdornment';
+import Link from '@mui/material/Link'; // Importar el componente Link de MUI
 
 import { useRouter } from 'src/routes/hooks';
 
@@ -119,6 +120,18 @@ export default function LoginView() {
       >
         Inicia Sesion
       </LoadingButton>
+
+      {/* Enlace a la Política de Privacidad */}
+      <Typography variant="body2" align="center" sx={{ mt: 2 }}>
+        <Link
+          href="https://www.jansconsulting.com.co/politica-privacidad"
+          target="_blank" // Abrir en una nueva pestaña
+          rel="noopener noreferrer" // Buenas prácticas de seguridad
+          underline="hover" // Subrayado al pasar el mouse
+        >
+          Política de Privacidad de Datos
+        </Link>
+      </Typography>
     </>
   );
 
