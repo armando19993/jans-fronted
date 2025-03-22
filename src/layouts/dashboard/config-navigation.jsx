@@ -43,7 +43,7 @@ const navConfig = [
     requiredService: 'service_radian',
   },
   {
-    title: 'dondload xml',
+    title: 'descargar xml',
     path: '/dashboard/download',
     icon: icon('ic_company'),
     roles: ['SADMIN', 'ADMIN', 'OPERATOR'],
