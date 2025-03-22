@@ -4,6 +4,7 @@ import { Outlet, Navigate, useRoutes } from 'react-router-dom';
 import DashboardLayout from 'src/layouts/dashboard';
 import CompanyPage from 'src/pages/company';
 import ComunicationPage from 'src/pages/comunications';
+import DownloadPage from 'src/pages/download';
 import DocumentsPage from 'src/sections/documents/view/documents-view';
 import LotePage from 'src/sections/lotes/view/lotes-view';
 
@@ -36,6 +37,7 @@ export default function Router() {
         { path: 'lotes', element: <LotePage /> },
         { path: 'documents/:loteId', element: <DocumentsPage /> },
         { path: 'comunications/', element: <ComunicationPage /> },
+        { path: 'download/', element: <DownloadPage /> },
       ],
     },
     {

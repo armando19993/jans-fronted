@@ -44,7 +44,7 @@ const navConfig = [
   },
   {
     title: 'dondload xml',
-    path: '/dashboard/lotes',
+    path: '/dashboard/download',
     icon: icon('ic_company'),
     roles: ['SADMIN', 'ADMIN', 'OPERATOR'],
     requiredService: 'service_download',
