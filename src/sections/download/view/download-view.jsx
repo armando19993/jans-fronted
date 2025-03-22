@@ -27,6 +27,7 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { CloudDownload, CloudDownloadIcon, CopyCheckIcon, HelpCircle, LucideListRestart } from "lucide-react";
+import Cookies from "js-cookie"; // Importar Cookies para acceder al valor de service_download
 
 export default function DownloadPage() {
     const [url, setUrl] = useState("");
@@ -39,7 +40,14 @@ export default function DownloadPage() {
     const [isProcessing, setIsProcessing] = useState(false);
     const [activeStep, setActiveStep] = useState(0);
     const [downloadComplete, setDownloadComplete] = useState(false);
-    const [loading2, setLoading2] = useState(false)
+    const [loading2, setLoading2] = useState(false);
+    const [serviceDownloadActive, setServiceDownloadActive] = useState(false); // Estado para verificar si el servicio está activo
+
+    // Verificar el servicio de descarga al cargar la vista
+    useEffect(() => {
+        const serviceDownload = Cookies.get("service_download") === "true"; // Obtener el valor de service_download
+        setServiceDownloadActive(serviceDownload); // Actualizar el estado
+    }, []);
 
     // Pasos del proceso
     const steps = ['Ingresar datos', 'Procesando', 'Descarga completada'];
@@ -67,21 +75,29 @@ export default function DownloadPage() {
     };
 
     const tokenActive = async (url) => {
-        setLoading2(true)
+        setLoading2(true);
         try {
             const response = await axios.post('https://lector.jansprogramming.com.co/validar_token', {
                 authUrl: url,
             });
-            setLoading2(false)
+            setLoading2(false);
             return response.status === 200; // Asumiendo que un código 200 significa que el token es válido
         } catch (error) {
-            setLoading2(false)
+            setLoading2(false);
             return false; // Si hay un error (como un 404), el token no es válido
         }
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+
+        if (!serviceDownloadActive) {
+            toast.error("No tienes acceso a esta función. Contacta al administrador.", {
+                position: "top-center",
+                autoClose: 5000,
+            });
+            return;
+        }
 
         if (!isValidUrl(url)) {
             setError("La URL debe comenzar con https://catalogo-vpfe.dian.gov.co/User/AuthToken?");
@@ -214,7 +230,6 @@ export default function DownloadPage() {
 
     return (
         <Container maxWidth="md" sx={{ py: 4 }}>
-
             <Paper elevation={3} sx={{ borderRadius: 3, overflow: 'hidden' }}>
                 <Box sx={{ bgcolor: 'primary.main', color: 'white', p: 3 }}>
                     <Typography variant="h4" align="center" fontWeight="bold">
@@ -226,6 +241,17 @@ export default function DownloadPage() {
                 </Box>
 
                 <Box sx={{ p: 4 }}>
+                    {!serviceDownloadActive ? (
+                        <Alert severity="error" sx={{ mb: 4 }}>
+                            <Typography variant="body1" fontWeight="bold">
+                                Función no disponible
+                            </Typography>
+                            <Typography variant="body2">
+                                No tienes acceso a esta función. Por favor, contacta al administrador para obtener más información.
+                            </Typography>
+                        </Alert>
+                    ) : null}
+
                     <Stepper activeStep={activeStep} alternativeLabel sx={{ mb: 4 }}>
                         {steps.map((label) => (
                             <Step key={label}>
@@ -263,6 +289,7 @@ export default function DownloadPage() {
                                                     </Tooltip>
                                                 )
                                             }}
+                                            disabled={!serviceDownloadActive} // Deshabilitar si el servicio no está activo
                                         />
                                         <Tooltip title="Para obtener la url, debes proceder a iniciar sesion en DIAN, ellos enviaran el token a su correo y usted lo coloca aca.">
                                             <IconButton
@@ -288,7 +315,8 @@ export default function DownloadPage() {
                                                     textField: {
                                                         fullWidth: true,
                                                         required: true,
-                                                        error: !!error && !startDate
+                                                        error: !!error && !startDate,
+                                                        disabled: !serviceDownloadActive // Deshabilitar si el servicio no está activo
                                                     }
                                                 }}
                                             />
@@ -300,7 +328,8 @@ export default function DownloadPage() {
                                                     textField: {
                                                         fullWidth: true,
                                                         required: true,
-                                                        error: !!error && !endDate
+                                                        error: !!error && !endDate,
+                                                        disabled: !serviceDownloadActive // Deshabilitar si el servicio no está activo
                                                     }
                                                 }}
                                             />
@@ -323,6 +352,7 @@ export default function DownloadPage() {
                                             fontSize: '1.1rem'
                                         }}
                                         startIcon={<CloudDownload />}
+                                        disabled={!serviceDownloadActive} // Deshabilitar si el servicio no está activo
                                     >
                                         Iniciar Descarga
                                     </Button>

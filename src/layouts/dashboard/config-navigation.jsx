@@ -47,7 +47,7 @@ const navConfig = [
     path: '/dashboard/download',
     icon: icon('ic_company'),
     roles: ['SADMIN', 'ADMIN', 'OPERATOR'],
-    requiredService: 'service_download',
+    requiredService: null,
   },
   {
     title: 'reportes',
