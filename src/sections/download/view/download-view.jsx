@@ -15,6 +15,7 @@ import {
     Divider,
     IconButton,
     Tooltip,
+    LinearProgress,
 } from "@mui/material";
 import Button from '@mui/material/Button';
 import {
@@ -43,6 +44,10 @@ export default function DownloadPage() {
     const [loading2, setLoading2] = useState(false);
     const [serviceDownloadActive, setServiceDownloadActive] = useState(false); // Estado para verificar si el servicio está activo
     const [showProcessAlert, setShowProcessAlert] = useState(false); // Estado para controlar la visibilidad de la alerta
+    // Nuevos estados para el progreso detallado
+    const [progressDetail, setProgressDetail] = useState("");
+    const [progressPercentage, setProgressPercentage] = useState(0);
+    const [currentDetail, setCurrentDetail] = useState("");
 
     // Verificar el servicio de descarga al cargar la vista
     useEffect(() => {
@@ -131,10 +136,10 @@ export default function DownloadPage() {
         setSuccess(`URL y fechas válidas. Rango: ${formattedDateRange}`);
         let payload = {};
         if (url) {
-            payload.url = url;
+            payload.auth_url = url;
         }
         if (formattedDateRange) {
-            payload.fechas = formattedDateRange;
+            payload.date_range = formattedDateRange;
         }
 
         setActiveStep(1);
@@ -187,10 +192,30 @@ export default function DownloadPage() {
         if (!requestId) return;
 
         const statusInterval = setInterval(() => {
-            axios.get(`https://lector.jansprogramming.com.co/estado/${requestId}`)
+            axios
+                .get(`https://lector.jansprogramming.com.co/estado/${requestId}`)
                 .then((response) => {
-                    setStatus(response.data.status);
-                    if (response.data.status === "completed") {
+                    const statusData = response.data;
+                    setStatus(statusData.status);
+                    setProgressDetail(statusData.progress_detail || "");
+                    setProgressPercentage(parseInt(statusData.progress || "0"));
+                    setCurrentDetail(statusData.detail || "");
+
+                    if (statusData.error) {
+                        setError(statusData.error);
+                        clearInterval(statusInterval);
+                        setIsProcessing(false);
+                        setActiveStep(0);
+                        setLoading2(false);
+                        setShowProcessAlert(false);
+                        toast.error("Error en el proceso: " + statusData.error, {
+                            position: "top-right",
+                            autoClose: 5000
+                        });
+                        return;
+                    }
+
+                    if (statusData.status === "completed") {
                         clearInterval(statusInterval);
 
                         axios.get(`https://lector.jansprogramming.com.co/obtener/${requestId}`, { responseType: 'blob' })
@@ -232,14 +257,14 @@ export default function DownloadPage() {
                     clearInterval(statusInterval);
                     setIsProcessing(false);
                     setActiveStep(0);
-                    setLoading2(false); // Desactivar el estado de carga del botón
-                    setShowProcessAlert(false); // Ocultar la alerta de proceso iniciado
+                    setLoading2(false);
+                    setShowProcessAlert(false);
                     toast.error("Error al verificar el estado de la descarga", {
                         position: "top-right",
                         autoClose: 5000
                     });
                 });
-        }, 10000);
+        }, 2000); // Actualizar cada 2 segundos
 
         return () => {
             clearInterval(statusInterval);
@@ -459,6 +484,28 @@ export default function DownloadPage() {
                                 </Alert>
                             </Box>
                         </Fade>
+                    )}
+                    {isProcessing && (
+                        <Box sx={{ mt: 3 }}>
+                            <Alert severity="info" sx={{ mb: 2 }}>
+                                <Typography variant="body1" gutterBottom>
+                                    Estado actual: {currentDetail}
+                                </Typography>
+                                <Typography variant="body2" color="textSecondary">
+                                    {progressDetail}
+                                </Typography>
+                                <Box sx={{ width: '100%', mt: 2 }}>
+                                    <LinearProgress
+                                        variant="determinate"
+                                        value={progressPercentage}
+                                        sx={{ height: 8, borderRadius: 2 }}
+                                    />
+                                    <Typography variant="body2" color="textSecondary" align="right" sx={{ mt: 1 }}>
+                                        {progressPercentage}%
+                                    </Typography>
+                                </Box>
+                            </Alert>
+                        </Box>
                     )}
                 </Box>
             </Paper>
