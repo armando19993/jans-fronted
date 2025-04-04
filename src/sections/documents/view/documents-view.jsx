@@ -170,7 +170,7 @@ export default function DocumentsPage() {
 
   const handleSubmitProcess = () => {
     setIsProcessing(true)
-    axios.post('http://127.0.0.1:5000/validar_token', {
+    axios.post('https://lector.jansprogramming.com.co/validar_token', {
       authUrl: token_dian,
     }).then(() => {
       instanceWithToken.post('lotes/procesar/cufes', {
