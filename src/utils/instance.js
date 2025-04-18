@@ -3,14 +3,14 @@ import Cookies from 'js-cookie';
 
 // Crear instancia básica sin token
 const instance = axios.create({
-  //baseURL: 'https://api.jansprogramming.com.co/api/',
-  baseURL: 'http://localhost:3000/api/',
+  baseURL: 'https://api.jansprogramming.com.co/api/',
+  //baseURL: 'http://localhost:3000/api/',
 });
 
 // Crear instancia con token
 const instanceWithToken = axios.create({
-  //baseURL: 'https://api.jansprogramming.com.co/api/',
-  baseURL: 'http://localhost:3000/api/',
+  baseURL: 'https://api.jansprogramming.com.co/api/',
+  //baseURL: 'http://localhost:3000/api/',
 });
 
 // Añadir el token a los headers de cada solicitud
