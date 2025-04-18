@@ -5,6 +5,7 @@ import DashboardLayout from 'src/layouts/dashboard';
 import CompanyPage from 'src/pages/company';
 import ComunicationPage from 'src/pages/comunications';
 import DownloadPage from 'src/pages/download';
+import PackagesPage from 'src/pages/packages';
 import ReportesPage from 'src/pages/reportes';
 import DocumentsPage from 'src/sections/documents/view/documents-view';
 import LotePage from 'src/sections/lotes/view/lotes-view';
@@ -40,6 +41,7 @@ export default function Router() {
         { path: 'comunications/', element: <ComunicationPage /> },
         { path: 'download/', element: <DownloadPage /> },
         { path: 'reportes', element: <ReportesPage /> },
+        { path: 'packages', element: <PackagesPage /> }
       ],
     },
     {

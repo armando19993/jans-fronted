@@ -29,6 +29,13 @@ const navConfig = [
     requiredService: null,
   },
   {
+    title: 'paquetes',
+    path: '/dashboard/packages',
+    icon: icon('ic_company'),
+    roles: ['SADMIN'],
+    requiredService: null,
+  },
+  {
     title: 'comunicados',
     path: '/dashboard/comunications',
     icon: icon('ic_company'),
